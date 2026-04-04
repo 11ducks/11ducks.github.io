@@ -1,0 +1,2224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>E-Scooter Pass Adviser</title>
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #162033;
+      --muted: #62708a;
+      --border: #dbe1ec;
+      --accent: #2563eb;
+      --good: #0f766e;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+
+    .hero {
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(219,225,236,0.9);
+      border-radius: 30px;
+      padding: 28px;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 3.8vw, 3.2rem);
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .card-inner {
+      padding: 22px;
+    }
+
+    .section-title {
+      margin: 0 0 18px;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .controls {
+      position: sticky;
+      top: 20px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.96rem;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.88rem;
+    }
+
+    input[type="number"], input[type="range"] {
+      width: 100%;
+    }
+
+    input[type="number"] {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 1rem;
+      color: var(--text);
+      background: #fff;
+    }
+
+    input[type="range"] {
+      accent-color: var(--accent);
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fbfdff;
+    }
+
+    .checkbox-row label {
+      margin: 0;
+      align-items: center;
+      justify-content: flex-start;
+      cursor: pointer;
+    }
+
+    .conditional-field[hidden] {
+      display: none;
+    }
+
+    .presets {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    select {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 1rem;
+      color: var(--text);
+      background: #fff;
+    }
+
+    .preset {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      border-radius: 16px;
+      padding: 12px 10px;
+      text-align: left;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .preset:hover {
+      transform: translateY(-1px);
+      border-color: #c0cdf2;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.08);
+    }
+
+    .preset strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+    }
+
+    .preset span {
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.4;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .metric {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    }
+
+    .metric .eyebrow {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .metric .value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .metric .sub {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .best {
+      border: 1px solid rgba(15,118,110,0.18);
+      background: linear-gradient(180deg, rgba(15,118,110,0.08) 0%, rgba(255,255,255,1) 100%);
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+      background: white;
+    }
+
+    th, td {
+      padding: 14px 14px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      background: #fbfcfe;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      background: #eef4ff;
+      color: #1846b6;
+      border: 1px solid #d7e3ff;
+    }
+
+    .pill.best-tag {
+      background: #eafaf7;
+      color: #0f766e;
+      border-color: #c6efe6;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .chart-shell {
+      padding: 18px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 14px;
+      margin-bottom: 12px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      flex: 0 0 12px;
+    }
+
+    .svg-wrap {
+      width: 100%;
+      overflow: auto;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--border);
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      min-width: 760px;
+      height: auto;
+    }
+
+    .dominant-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .dominant-item {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: #fff;
+    }
+
+    .dominant-range {
+      color: var(--muted);
+      font-size: 0.84rem;
+      margin-bottom: 6px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .dominant-name {
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    details {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px 18px;
+      background: #fff;
+    }
+
+    details summary {
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    details .small {
+      margin-top: 12px;
+    }
+
+    .foot {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.55;
+    }
+
+    .assumption-grid {
+      display: block;
+      margin: 14px 0 18px;
+    }
+
+    .assumption-card {
+      border: none;
+      border-radius: 0;
+      padding: 0;
+      background: transparent;
+      margin-bottom: 14px;
+    }
+
+    .assumption-card h3 {
+      margin: 0 0 10px;
+      font-size: 0.96rem;
+      letter-spacing: -0.02em;
+    }
+
+    .config-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .config-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .config-row label {
+      font-size: 0.9rem;
+      color: var(--text);
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .config-row input {
+      width: 96px;
+      padding: 9px 10px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.94rem;
+    }
+
+    .reset-config {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+
+    .share-stack {
+      display: grid;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .share-stack-minimal {
+      margin-top: 0;
+    }
+
+    .share-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .share-row-minimal {
+      justify-content: stretch;
+    }
+
+    .share-row input[type="text"] {
+      flex: 1 1 auto;
+      min-width: 0;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: #fff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      letter-spacing: 0.02em;
+    }
+
+    .share-row button {
+      flex: 0 0 auto;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .share-row button:hover {
+      transform: translateY(-1px);
+      border-color: #c0cdf2;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.08);
+    }
+
+    .share-status {
+      min-height: 1.35em;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .share-status.error {
+      color: #b91c1c;
+    }
+
+    .share-status.success {
+      color: var(--good);
+    }
+
+    .variance-details {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fbfdff;
+      padding: 10px 12px;
+    }
+
+    .variance-details summary {
+      cursor: pointer;
+      list-style: none;
+    }
+
+    .variance-details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .variance-summary {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .variance-body {
+      margin-top: 12px;
+    }
+
+    .variance-body label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 0.92rem;
+    }
+
+    @media (max-width: 980px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        position: static;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .assumption-grid {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>E-scooter pass adviser</h1>
+      <p class="subtitle">
+        Enter a typical ride pattern and this tool estimates the cheapest pass strategy for that use case.
+        It also plots how the cheapest option changes as journey length rises, so you can spot the break-even points for frequent or occasional users.
+      </p>
+    </section>
+
+    <div class="grid">
+      <aside class="controls card">
+        <div class="card-inner">
+          <div class="field">
+            <label for="regionSelect">
+              <span>Region</span>
+              <span class="hint">Switch operator defaults</span>
+            </label>
+            <select id="regionSelect" aria-label="Region">
+              <option value="bristol">Bristol</option>
+              <option value="london">London</option>
+            </select>
+          </div>
+
+          <h2 class="section-title">Your riding pattern</h2>
+
+          <div class="field">
+            <label for="rideMinutesValue">
+              <span>Average minutes per ride</span>
+              <span class="hint">1 to 60 min</span>
+            </label>
+            <input id="rideMinutesValue" type="number" min="1" max="60" step="1" value="15" inputmode="numeric" aria-label="Average minutes per ride" />
+            <input id="rideMinutes" type="range" min="1" max="60" step="1" value="15" />
+          </div>
+
+          <div class="field">
+            <details class="variance-details">
+              <summary>
+                <div class="variance-summary">
+                  <span>Ride variance</span>
+                  <span class="hint">Default ±1 min</span>
+                </div>
+              </summary>
+              <div class="variance-body">
+                <label for="rideVariance">
+                  <span>Allow rides to vary by</span>
+                  <span class="hint">Around the average</span>
+                </label>
+                <input id="rideVariance" type="number" min="0" max="15" step="0.5" value="1" inputmode="decimal" aria-label="Ride variance in minutes" />
+                <div class="hint" style="margin-top:8px; display:block;">Modelled as a small weighted spread around the average ride length.</div>
+              </div>
+            </details>
+          </div>
+
+          <div class="field">
+            <label for="tripsPerDay">
+              <span>Trips per riding day</span>
+              <span class="hint">1 to 12 trips</span>
+            </label>
+            <input id="tripsPerDay" type="number" min="1" max="12" step="1" value="2" />
+          </div>
+
+          <div class="field">
+            <label for="daysPerWeek">
+              <span>Riding days per week</span>
+              <span class="hint">1 to 7 days</span>
+            </label>
+            <input id="daysPerWeek" type="number" min="1" max="7" step="1" value="5" />
+          </div>
+
+          <div class="field">
+            <label for="graphMax">
+              <span>Graph up to ride length</span>
+              <span class="hint" id="graphMaxValue"></span>
+            </label>
+            <input id="graphMax" type="range" min="20" max="60" step="5" value="35" />
+          </div>
+
+          <div class="field">
+            <div class="checkbox-row">
+              <label for="includeBusComparison">
+                <span>Compare against bus fare</span>
+              </label>
+              <input id="includeBusComparison" type="checkbox" />
+            </div>
+          </div>
+
+          <div class="field conditional-field" id="busFareField" hidden>
+            <label for="busFare">
+              <span id="busFareLabel">Single bus ticket (£)</span>
+              <span class="hint">Per ride / single journey</span>
+            </label>
+            <input id="busFare" type="number" min="0" step="0.10" inputmode="decimal" value="2.60" />
+          </div>
+
+          <div class="field" id="tubeComparisonToggleField" hidden>
+            <div class="checkbox-row">
+              <label for="includeTubeComparison">
+                <span>Compare against Tube fare</span>
+              </label>
+              <input id="includeTubeComparison" type="checkbox" />
+            </div>
+          </div>
+
+          <div class="field conditional-field" id="tubeFareField" hidden>
+            <label for="tubeFare">
+              <span id="tubeFareLabel">Tube fare (£)</span>
+              <span class="hint">Per ride / single journey</span>
+            </label>
+            <input id="tubeFare" type="number" min="0" step="0.10" inputmode="decimal" value="3.00" />
+          </div>
+
+          <div class="field">
+            <div class="hint" style="margin-bottom: 10px; display:block;">Quick presets</div>
+            <div class="presets">
+              <button class="preset" data-minutes="22" data-trips="2" data-days="5">
+                <strong>Daily commuter</strong>
+                <span>22 min · 2 trips · 5 days/week</span>
+              </button>
+              <button class="preset" data-minutes="9" data-trips="1" data-days="1">
+                <strong>Occasional</strong>
+                <span>9 min · 1 trip · 1 day/week</span>
+              </button>
+              <button class="preset" data-minutes="15" data-trips="2" data-days="1">
+                <strong>One-day return trip</strong>
+                <span>15 min · 2 trips · 1 day/week</span>
+              </button>
+              <button class="preset" data-minutes="7" data-trips="4" data-days="2">
+                <strong>Dense day usage</strong>
+                <span>7 min · 4 trips · 2 days/week</span>
+              </button>
+              <button class="preset" data-minutes="6" data-trips="4" data-days="4">
+                <strong>High weekly minutes</strong>
+                <span>6 min · 4 trips · 4 days/week</span>
+              </button>
+              <button class="preset" data-minutes="15" data-trips="3" data-days="7">
+                <strong>Heavy everyday rider</strong>
+                <span>15 min · 3 trips · 7 days/week</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="share-stack share-stack-minimal">
+              <div class="share-row share-row-minimal">
+                <button id="copyShareLink" type="button">Copy share link</button>
+              </div>
+              <div class="share-status" id="shareStatus" aria-live="polite"></div>
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+      <main>
+        <section class="card" style="margin-bottom:22px;">
+          <div class="card-inner">
+            <h2 class="section-title">Recommendation</h2>
+            <div class="summary-grid">
+              <div class="metric best">
+                <div class="eyebrow">Best overall</div>
+                <div class="value" id="bestName">—</div>
+                <div class="sub" id="bestSummary">—</div>
+              </div>
+              <div class="metric">
+                <div class="eyebrow">Estimated monthly spend</div>
+                <div class="value" id="bestMonthly">—</div>
+                <div class="sub" id="bestYearly">—</div>
+              </div>
+              <div class="metric">
+                <div class="eyebrow">Monthly activity</div>
+                <div class="value" id="monthlyRides">—</div>
+                <div class="sub" id="monthlyMinutes">—</div>
+              </div>
+
+              <div class="metric">
+                <div class="eyebrow">Cost efficiency</div>
+                <div class="value" id="costPerRide">—</div>
+                <div class="sub" id="costPerMinute">—</div>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Strategy</th>
+                    <th>Estimated monthly cost</th>
+                    <th>Approx. yearly cost</th>
+                    <th>How this tool models it</th>
+                    <th>Rank</th>
+                  </tr>
+                </thead>
+                <tbody id="resultsTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" style="margin-bottom:22px;">
+          <div class="card-inner">
+            <h2 class="section-title">Where each pass overtakes the others</h2>
+            <div class="chart-shell">
+              <div class="legend" id="legend"></div>
+              <div class="svg-wrap">
+                <svg id="chart" viewBox="0 0 960 420" aria-label="Pass cost comparison chart"></svg>
+              </div>
+              <div class="dominant-list" id="dominantList"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-inner">
+            <details>
+              <summary>Assumptions and editable pricing</summary>
+              <div class="small">
+                <p>You can change the pass prices and charging rules below. The recommendation table and graph will update instantly. Use the region menu above to switch between the Bristol defaults and the London defaults.</p>
+              </div>
+              <button class="reset-config" id="resetPricing" type="button">Reset current region pricing</button>
+              <div class="assumption-grid">
+                <div class="assumption-card">
+                  <h3>Display and timing</h3>
+                  <div class="config-row">
+                    <label for="currencyPrefix">Currency prefix across tool</label>
+                    <input class="config-input" id="currencyPrefix" type="text" value="£" maxlength="8" />
+                  </div>
+                  <div class="config-row">
+                    <label for="weeksPerMonth">Weeks per month used for estimates</label>
+                    <input class="config-input" id="weeksPerMonth" type="number" min="0.1" step="0.001" value="4.345" />
+                  </div>
+                </div>
+                <div class="assumption-card">
+                  <h3>Standard pay-as-you-go</h3>
+                  <div class="config-row">
+                    <label for="minuteRate"><span id="minuteRateLabel">Minute rate (£/min)</span></label>
+                    <input class="config-input" id="minuteRate" type="number" min="0" step="0.01" value="0.25" />
+                  </div>
+                  <div class="config-row">
+                    <label for="unlockFee"><span id="unlockFeeLabel">Unlock fee (£)</span></label>
+                    <input class="config-input" id="unlockFee" type="number" min="0" step="0.01" value="1.00" />
+                  </div>
+                </div>
+                <div class="assumption-card">
+                  <h3>Minute bundles</h3>
+                  <div class="config-row" data-regions="bristol,london">
+                    <label for="pass30Price"><span id="pass30PriceLabel">30 Minutes Pass price (£)</span></label>
+                    <input class="config-input" id="pass30Price" type="number" min="0" step="0.01" value="5.99" />
+                  </div>
+                  <div class="config-row" data-regions="bristol,london">
+                    <label for="pass30Minutes"><span id="pass30MinutesLabel">30 Minutes Pass included minutes</span></label>
+                    <input class="config-input" id="pass30Minutes" type="number" min="0" step="1" value="30" />
+                  </div>
+                  <div class="config-row" data-regions="london">
+                    <label for="pass60Price"><span id="pass60PriceLabel">60 mins bundle price (£)</span></label>
+                    <input class="config-input" id="pass60Price" type="number" min="0" step="0.01" value="6.99" />
+                  </div>
+                  <div class="config-row" data-regions="london">
+                    <label for="pass60Minutes"><span id="pass60MinutesLabel">60 mins bundle included minutes</span></label>
+                    <input class="config-input" id="pass60Minutes" type="number" min="0" step="1" value="60" />
+                  </div>
+                  <div class="config-row" data-regions="bristol">
+                    <label for="pass100Price"><span id="pass100PriceLabel">100 Minutes Pass price (£)</span></label>
+                    <input class="config-input" id="pass100Price" type="number" min="0" step="0.01" value="19.99" />
+                  </div>
+                  <div class="config-row" data-regions="bristol">
+                    <label for="pass100Minutes"><span id="pass100MinutesLabel">100 Minutes Pass included minutes</span></label>
+                    <input class="config-input" id="pass100Minutes" type="number" min="0" step="1" value="100" />
+                  </div>
+                  <div class="config-row" data-regions="london">
+                    <label for="pass200Price"><span id="pass200PriceLabel">200 mins bundle price (£)</span></label>
+                    <input class="config-input" id="pass200Price" type="number" min="0" step="0.01" value="18.99" />
+                  </div>
+                  <div class="config-row" data-regions="london">
+                    <label for="pass200Minutes"><span id="pass200MinutesLabel">200 mins bundle included minutes</span></label>
+                    <input class="config-input" id="pass200Minutes" type="number" min="0" step="1" value="200" />
+                  </div>
+                  <div class="config-row" data-regions="london">
+                    <label for="pass400Price"><span id="pass400PriceLabel">400 mins bundle price (£)</span></label>
+                    <input class="config-input" id="pass400Price" type="number" min="0" step="0.01" value="36.99" />
+                  </div>
+                  <div class="config-row" data-regions="london">
+                    <label for="pass400Minutes"><span id="pass400MinutesLabel">400 mins bundle included minutes</span></label>
+                    <input class="config-input" id="pass400Minutes" type="number" min="0" step="1" value="400" />
+                  </div>
+                </div>
+                <div class="assumption-card">
+                  <h3>Ride-based and subscription products</h3>
+                  <div class="config-row" data-regions="bristol">
+                    <label for="rides2Price"><span id="rides2PriceLabel">2 Rides Pass price (£)</span></label>
+                    <input class="config-input" id="rides2Price" type="number" min="0" step="0.01" value="3.99" />
+                  </div>
+                  <div class="config-row" data-regions="bristol">
+                    <label for="rides2Count"><span id="rides2CountLabel">2 Rides Pass included rides</span></label>
+                    <input class="config-input" id="rides2Count" type="number" min="1" step="1" value="2" />
+                  </div>
+                  <div class="config-row" data-regions="bristol">
+                    <label for="rides2Minutes"><span id="rides2MinutesLabel">Minutes included per covered ride</span></label>
+                    <input class="config-input" id="rides2Minutes" type="number" min="1" step="1" value="20" />
+                  </div>
+                  <div class="config-row" data-regions="bristol">
+                    <label for="unlocksMonthlyPrice"><span id="unlocksMonthlyPriceLabel">Unlimited Free Unlocks price (£)</span></label>
+                    <input class="config-input" id="unlocksMonthlyPrice" type="number" min="0" step="0.01" value="5.99" />
+                  </div>
+                  <div class="config-row" data-regions="bristol,london">
+                    <label for="subscriptionMonthlyPrice"><span id="subscriptionMonthlyPriceLabel">Dott Pro monthly price (£)</span></label>
+                    <input class="config-input" id="subscriptionMonthlyPrice" type="number" min="0" step="0.01" value="9.99" />
+                  </div>
+                  <div class="config-row" data-regions="bristol,london">
+                    <label for="subscriptionRidePrice"><span id="subscriptionRidePriceLabel">Dott Pro price per included ride (£)</span></label>
+                    <input class="config-input" id="subscriptionRidePrice" type="number" min="0" step="0.01" value="1.50" />
+                  </div>
+                  <div class="config-row" data-regions="bristol,london">
+                    <label for="subscriptionRideMinutes"><span id="subscriptionRideMinutesLabel">Dott Pro included minutes per ride</span></label>
+                    <input class="config-input" id="subscriptionRideMinutes" type="number" min="1" step="1" value="20" />
+                  </div>
+                  <div class="config-row" data-regions="london">
+                    <label for="subscriptionOverageRate"><span id="subscriptionOverageRateLabel">LimePrime overage rate (£/min)</span></label>
+                    <input class="config-input" id="subscriptionOverageRate" type="number" min="0" step="0.01" value="0.30" />
+                  </div>
+                </div>
+              </div>
+              <div class="small" id="assumptionNotes"></div>
+            </details>
+            <div class="foot">
+              This is an independent tool built in my free time. It is not affiliated with any operator or employer.
+              Bristol uses Dott pricing by default, while London switches to Lime pricing.
+              Estimates are based on typical pricing and actual app pricing may vary.
+            </p>
+            
+            <p>
+              If you work at Dott or another e-hire company and would like to integrate something like this into your app, feel free to do so.
+              If you spot any issues with the calculations or have suggestions, please email me at
+              <a href="mailto:charles.symons18@outlook.com">charles.symons18@outlook.com</a>.
+            </p>
+            
+            <p>
+              If you like this tool and want to support this project, thank you:
+              <a href="https://buymeacoffee.com/11ducks" target="_blank" rel="noopener noreferrer">
+                buymeacoffee.com/11ducks
+              </a>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const DEFAULT_WEEKS_PER_MONTH = 4.345;
+
+    const REGION_DEFAULTS = {
+      bristol: {
+        key: 'bristol',
+        name: 'Bristol',
+        operator: 'Dott',
+        defaultBusFare: 2.60,
+        defaultTubeFare: 3.00,
+        tubeEnabled: false,
+        config: {
+          weeksPerMonth: DEFAULT_WEEKS_PER_MONTH,
+          minuteRate: 0.25,
+          unlockFee: 1,
+          pass30Price: 5.99,
+          pass30Minutes: 30,
+          pass60Price: 6.99,
+          pass60Minutes: 60,
+          pass100Price: 19.99,
+          pass100Minutes: 100,
+          pass200Price: 18.99,
+          pass200Minutes: 200,
+          pass400Price: 36.99,
+          pass400Minutes: 400,
+          rides2Price: 3.99,
+          rides2Count: 2,
+          rides2Minutes: 20,
+          unlocksMonthlyPrice: 5.99,
+          subscriptionMonthlyPrice: 9.99,
+          subscriptionRidePrice: 1.50,
+          subscriptionRideMinutes: 20,
+          subscriptionOverageRate: 0.25
+        },
+        strategies: [
+          { id: 'noPass', name: 'No pass', type: 'noPass' },
+          { id: 'rides2', name: '2 Rides Pass', type: 'rideBundle', priceField: 'rides2Price', countField: 'rides2Count', minutesField: 'rides2Minutes' },
+          { id: 'pass30', name: '30 Minutes Pass', type: 'minuteBundle', priceField: 'pass30Price', minutesField: 'pass30Minutes', durationDays: 1 },
+          { id: 'pass100', name: '100 Minutes Pass', type: 'minuteBundle', priceField: 'pass100Price', minutesField: 'pass100Minutes', durationDays: 7 },
+          { id: 'unlocks', name: 'Unlimited Free Unlocks', type: 'unlockPass', priceField: 'unlocksMonthlyPrice' },
+          { id: 'subscription', name: 'Dott Pro', type: 'subscription', monthlyField: 'subscriptionMonthlyPrice', ridePriceField: 'subscriptionRidePrice', rideMinutesField: 'subscriptionRideMinutes', overageField: 'subscriptionOverageRate' }
+        ],
+        notes: [
+          '<p><strong>No pass</strong> is modelled as the unlock fee plus the standard minute rate on every ride.</p>',
+          '<p><strong>30 Minutes Pass</strong> is treated as a 1-day minute bundle with free unlocks. The tool checks whether stacking more than one bundle on the same day would be cheaper than paying overage.</p>',
+          '<p><strong>100 Minutes Pass</strong> is treated as a 7-day minute bundle with free unlocks. The tool checks whether stacking more than one weekly bundle would beat paying overage.</p>',
+          '<p><strong>2 Rides Pass</strong> is treated as covering a set number of rides per day, each with a capped included duration. Longer rides pay minute overage and extra uncovered rides revert to standard no-pass pricing.</p>',
+          '<p><strong>Unlimited Free Unlocks</strong> is modelled as a 30-day unlock waiver only, with all minutes still charged at the standard minute rate.</p>',
+          '<p><strong>Dott Pro</strong> is modelled as a monthly fee plus a fixed price per ride up to the included duration, with extra time billed at the standard minute rate.</p>'
+        ]
+      },
+      london: {
+        key: 'london',
+        name: 'London',
+        operator: 'Lime',
+        defaultBusFare: 1.75,
+        defaultTubeFare: 3.00,
+        tubeEnabled: true,
+        config: {
+          weeksPerMonth: DEFAULT_WEEKS_PER_MONTH,
+          minuteRate: 0.29,
+          unlockFee: 1,
+          pass30Price: 3.99,
+          pass30Minutes: 30,
+          pass60Price: 6.99,
+          pass60Minutes: 60,
+          pass100Price: 19.99,
+          pass100Minutes: 100,
+          pass200Price: 18.99,
+          pass200Minutes: 200,
+          pass400Price: 36.99,
+          pass400Minutes: 400,
+          rides2Price: 3.99,
+          rides2Count: 2,
+          rides2Minutes: 20,
+          unlocksMonthlyPrice: 5.99,
+          subscriptionMonthlyPrice: 6.99,
+          subscriptionRidePrice: 1.70,
+          subscriptionRideMinutes: 20,
+          subscriptionOverageRate: 0.29
+        },
+        strategies: [
+          { id: 'noPass', name: 'No pass', type: 'noPass' },
+          { id: 'pass30', name: '30 mins bundle', type: 'minuteBundle', priceField: 'pass30Price', minutesField: 'pass30Minutes', durationDays: 1 },
+          { id: 'pass60', name: '60 mins bundle', type: 'minuteBundle', priceField: 'pass60Price', minutesField: 'pass60Minutes', durationDays: 3 },
+          { id: 'pass200', name: '200 mins bundle', type: 'minuteBundle', priceField: 'pass200Price', minutesField: 'pass200Minutes', durationDays: 7 },
+          { id: 'pass400', name: '400 mins bundle', type: 'minuteBundle', priceField: 'pass400Price', minutesField: 'pass400Minutes', durationDays: 30 },
+          { id: 'subscription', name: 'LimePrime', type: 'subscription', monthlyField: 'subscriptionMonthlyPrice', ridePriceField: 'subscriptionRidePrice', rideMinutesField: 'subscriptionRideMinutes', overageField: 'subscriptionOverageRate' }
+        ],
+        notes: [
+          '<p><strong>No pass</strong> is modelled as the unlock fee plus the standard minute rate on every ride.</p>',
+          '<p><strong>30 mins bundle</strong> is treated as a 1-day bundle with free unlocks. The tool checks whether stacking more than one bundle on the same day would beat paying overage.</p>',
+          '<p><strong>60 mins bundle</strong>, <strong>200 mins bundle</strong>, and <strong>400 mins bundle</strong> are treated as 3-day, 7-day, and 30-day bundles respectively, with free unlocks and extra minutes billed at the standard rate.</p>',
+          '<p><strong>LimePrime</strong> is modelled as a monthly fee plus a flat ride price up to the included duration, with any extra time billed at the LimePrime overage rate set above.</p>',
+          '<p>London mode hides the Bristol-only 2 Rides Pass and Unlimited Free Unlocks products and swaps in the Lime minute bundles instead.</p>'
+        ]
+      }
+    };
+
+    const COMMON_CURRENCIES = ['', '£', '$', '€', '¥', '₹'];
+    const NEW_SHARE_FIELD_SPECS = [
+      ['regionCode', 2],
+      ['rideMinutes', 6],
+      ['tripsPerDay', 4],
+      ['daysPerWeek', 3],
+      ['graphMaxIndex', 4],
+      ['includeBusComparison', 1],
+      ['includeTubeComparison', 1],
+      ['busFareCents', 13],
+      ['tubeFareCents', 13],
+      ['weeksPerMonthMillis', 15],
+      ['minuteRateCents', 10],
+      ['unlockFeeCents', 11],
+      ['pass30PriceCents', 13],
+      ['pass30Minutes', 10],
+      ['pass60PriceCents', 13],
+      ['pass60Minutes', 10],
+      ['pass100PriceCents', 13],
+      ['pass100Minutes', 10],
+      ['pass200PriceCents', 14],
+      ['pass200Minutes', 10],
+      ['pass400PriceCents', 14],
+      ['pass400Minutes', 10],
+      ['rides2PriceCents', 13],
+      ['rides2Count', 5],
+      ['rides2Minutes', 8],
+      ['unlocksMonthlyPriceCents', 13],
+      ['subscriptionMonthlyPriceCents', 13],
+      ['subscriptionRidePriceCents', 11],
+      ['subscriptionRideMinutes', 8],
+      ['subscriptionOverageRateCents', 10],
+      ['currencyCode', 3],
+      ['checksum', 10]
+    ];
+    const OLD_SHARE_FIELD_SPECS = [
+      ['rideMinutes', 6],
+      ['tripsPerDay', 4],
+      ['daysPerWeek', 3],
+      ['graphMaxIndex', 4],
+      ['includeBusComparison', 1],
+      ['busFareCents', 13],
+      ['weeksPerMonthMillis', 15],
+      ['minuteRateCents', 9],
+      ['unlockFeeCents', 11],
+      ['pass30PriceCents', 12],
+      ['pass30Minutes', 8],
+      ['pass100PriceCents', 13],
+      ['pass100Minutes', 9],
+      ['rides2PriceCents', 12],
+      ['rides2Count', 5],
+      ['rides2Minutes', 8],
+      ['unlocksMonthlyPriceCents', 12],
+      ['dottProMonthlyPriceCents', 12],
+      ['dottProRidePriceCents', 11],
+      ['dottProRideMinutes', 8],
+      ['currencyCode', 3],
+      ['checksum', 10]
+    ];
+    const SHARE_RADIX = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    const REGION_CODES = { bristol: 1, london: 2 };
+    const REGION_CODES_REVERSE = { 1: 'bristol', 2: 'london' };
+
+    const COLORS = {
+      noPass: '#64748b',
+      pass30: '#2563eb',
+      pass60: '#7c3aed',
+      pass100: '#7c3aed',
+      pass200: '#ea580c',
+      pass400: '#0891b2',
+      rides2: '#ea580c',
+      unlocks: '#0891b2',
+      subscription: '#0f766e',
+      bus: '#b45309',
+      tube: '#be123c'
+    };
+
+    const compactNumber = new Intl.NumberFormat('en-GB', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 1
+    });
+
+    const inputs = {
+      region: document.getElementById('regionSelect'),
+      rideMinutes: document.getElementById('rideMinutes'),
+      rideMinutesValue: document.getElementById('rideMinutesValue'),
+      rideVariance: document.getElementById('rideVariance'),
+      tripsPerDay: document.getElementById('tripsPerDay'),
+      daysPerWeek: document.getElementById('daysPerWeek'),
+      graphMax: document.getElementById('graphMax'),
+      includeBusComparison: document.getElementById('includeBusComparison'),
+      busFare: document.getElementById('busFare'),
+      includeTubeComparison: document.getElementById('includeTubeComparison'),
+      tubeFare: document.getElementById('tubeFare')
+    };
+
+    const graphMaxValue = document.getElementById('graphMaxValue');
+    const bestName = document.getElementById('bestName');
+    const bestSummary = document.getElementById('bestSummary');
+    const bestMonthly = document.getElementById('bestMonthly');
+    const bestYearly = document.getElementById('bestYearly');
+    const monthlyRides = document.getElementById('monthlyRides');
+    const monthlyMinutes = document.getElementById('monthlyMinutes');
+    const costPerRide = document.getElementById('costPerRide');
+    const costPerMinute = document.getElementById('costPerMinute');
+    const resultsTable = document.getElementById('resultsTable');
+    const legend = document.getElementById('legend');
+    const chart = document.getElementById('chart');
+    const dominantList = document.getElementById('dominantList');
+    const assumptionNotes = document.getElementById('assumptionNotes');
+    const configInputs = document.querySelectorAll('.config-input');
+    const resetPricingButton = document.getElementById('resetPricing');
+    const busFareField = document.getElementById('busFareField');
+    const tubeComparisonToggleField = document.getElementById('tubeComparisonToggleField');
+    const tubeFareField = document.getElementById('tubeFareField');
+    const copyShareLinkButton = document.getElementById('copyShareLink');
+    const shareStatus = document.getElementById('shareStatus');
+    const regionRows = document.querySelectorAll('[data-regions]');
+
+    const currencyLabelElements = {
+      busFareLabel: document.getElementById('busFareLabel'),
+      tubeFareLabel: document.getElementById('tubeFareLabel'),
+      minuteRateLabel: document.getElementById('minuteRateLabel'),
+      unlockFeeLabel: document.getElementById('unlockFeeLabel'),
+      pass30PriceLabel: document.getElementById('pass30PriceLabel'),
+      pass30MinutesLabel: document.getElementById('pass30MinutesLabel'),
+      pass60PriceLabel: document.getElementById('pass60PriceLabel'),
+      pass60MinutesLabel: document.getElementById('pass60MinutesLabel'),
+      pass100PriceLabel: document.getElementById('pass100PriceLabel'),
+      pass100MinutesLabel: document.getElementById('pass100MinutesLabel'),
+      pass200PriceLabel: document.getElementById('pass200PriceLabel'),
+      pass200MinutesLabel: document.getElementById('pass200MinutesLabel'),
+      pass400PriceLabel: document.getElementById('pass400PriceLabel'),
+      pass400MinutesLabel: document.getElementById('pass400MinutesLabel'),
+      rides2PriceLabel: document.getElementById('rides2PriceLabel'),
+      rides2CountLabel: document.getElementById('rides2CountLabel'),
+      rides2MinutesLabel: document.getElementById('rides2MinutesLabel'),
+      unlocksMonthlyPriceLabel: document.getElementById('unlocksMonthlyPriceLabel'),
+      subscriptionMonthlyPriceLabel: document.getElementById('subscriptionMonthlyPriceLabel'),
+      subscriptionRidePriceLabel: document.getElementById('subscriptionRidePriceLabel'),
+      subscriptionRideMinutesLabel: document.getElementById('subscriptionRideMinutesLabel'),
+      subscriptionOverageRateLabel: document.getElementById('subscriptionOverageRateLabel')
+    };
+
+    const CONFIG_FIELD_IDS = [
+      'weeksPerMonth',
+      'minuteRate',
+      'unlockFee',
+      'pass30Price',
+      'pass30Minutes',
+      'pass60Price',
+      'pass60Minutes',
+      'pass100Price',
+      'pass100Minutes',
+      'pass200Price',
+      'pass200Minutes',
+      'pass400Price',
+      'pass400Minutes',
+      'rides2Price',
+      'rides2Count',
+      'rides2Minutes',
+      'unlocksMonthlyPrice',
+      'subscriptionMonthlyPrice',
+      'subscriptionRidePrice',
+      'subscriptionRideMinutes',
+      'subscriptionOverageRate'
+    ];
+
+    function currentRegionKey() {
+      return REGION_DEFAULTS[inputs.region.value] ? inputs.region.value : 'bristol';
+    }
+
+    function currentRegionDef() {
+      return REGION_DEFAULTS[currentRegionKey()];
+    }
+
+    function getCurrencyPrefix() {
+      const input = document.getElementById('currencyPrefix');
+      const value = input ? input.value.trim() : '';
+      return value || '£';
+    }
+
+    function formatCurrency(value) {
+      return `${getCurrencyPrefix()}${Number(value || 0).toFixed(2)}`;
+    }
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function toNum(el, fallback) {
+      const value = Number(el.value);
+      return Number.isFinite(value) ? value : fallback;
+    }
+
+    function getConfig() {
+      const regionConfig = currentRegionDef().config;
+      const value = (id, fallback, min = 0) => {
+        const el = document.getElementById(id);
+        const parsed = el ? Number(el.value) : fallback;
+        return Number.isFinite(parsed) ? Math.max(min, parsed) : fallback;
+      };
+
+      return {
+        weeksPerMonth: value('weeksPerMonth', regionConfig.weeksPerMonth, 0.1),
+        minuteRate: value('minuteRate', regionConfig.minuteRate),
+        unlockFee: value('unlockFee', regionConfig.unlockFee),
+        pass30Price: value('pass30Price', regionConfig.pass30Price),
+        pass30Minutes: value('pass30Minutes', regionConfig.pass30Minutes, 1),
+        pass60Price: value('pass60Price', regionConfig.pass60Price),
+        pass60Minutes: value('pass60Minutes', regionConfig.pass60Minutes, 1),
+        pass100Price: value('pass100Price', regionConfig.pass100Price),
+        pass100Minutes: value('pass100Minutes', regionConfig.pass100Minutes, 1),
+        pass200Price: value('pass200Price', regionConfig.pass200Price),
+        pass200Minutes: value('pass200Minutes', regionConfig.pass200Minutes, 1),
+        pass400Price: value('pass400Price', regionConfig.pass400Price),
+        pass400Minutes: value('pass400Minutes', regionConfig.pass400Minutes, 1),
+        rides2Price: value('rides2Price', regionConfig.rides2Price),
+        rides2Count: Math.max(1, Math.round(value('rides2Count', regionConfig.rides2Count, 1))),
+        rides2Minutes: value('rides2Minutes', regionConfig.rides2Minutes, 1),
+        unlocksMonthlyPrice: value('unlocksMonthlyPrice', regionConfig.unlocksMonthlyPrice),
+        subscriptionMonthlyPrice: value('subscriptionMonthlyPrice', regionConfig.subscriptionMonthlyPrice),
+        subscriptionRidePrice: value('subscriptionRidePrice', regionConfig.subscriptionRidePrice),
+        subscriptionRideMinutes: value('subscriptionRideMinutes', regionConfig.subscriptionRideMinutes, 1),
+        subscriptionOverageRate: value('subscriptionOverageRate', regionConfig.subscriptionOverageRate)
+      };
+    }
+
+    function monthActivity(rideMinutes, tripsPerDay, daysPerWeek, weeksPerMonth = getConfig().weeksPerMonth) {
+      const ridesPerWeek = tripsPerDay * daysPerWeek;
+      const ridesPerMonth = ridesPerWeek * weeksPerMonth;
+      const minutesPerMonth = ridesPerMonth * rideMinutes;
+      return { ridesPerWeek, ridesPerMonth, minutesPerMonth };
+    }
+
+    function getComparisonSettings() {
+      return {
+        bus: {
+          enabled: Boolean(inputs.includeBusComparison.checked),
+          fare: Math.max(0, toNum(inputs.busFare, currentRegionDef().defaultBusFare))
+        },
+        tube: {
+          enabled: currentRegionDef().tubeEnabled && Boolean(inputs.includeTubeComparison.checked),
+          fare: Math.max(0, toNum(inputs.tubeFare, currentRegionDef().defaultTubeFare))
+        }
+      };
+    }
+
+    function updateComparisonVisibility() {
+      busFareField.hidden = !inputs.includeBusComparison.checked;
+      tubeComparisonToggleField.hidden = !currentRegionDef().tubeEnabled;
+      const showTubeFare = currentRegionDef().tubeEnabled && inputs.includeTubeComparison.checked;
+      tubeFareField.hidden = !showTubeFare;
+    }
+
+    function updateRegionVisibility() {
+      const regionKey = currentRegionKey();
+      regionRows.forEach((row) => {
+        const regions = String(row.dataset.regions || '').split(',').map((value) => value.trim()).filter(Boolean);
+        row.hidden = !regions.includes(regionKey);
+      });
+    }
+
+    function updateCurrencyLabels() {
+      const prefix = getCurrencyPrefix();
+      const regionKey = currentRegionKey();
+      if (currencyLabelElements.busFareLabel) currencyLabelElements.busFareLabel.textContent = `Single bus ticket (${prefix})`;
+      if (currencyLabelElements.tubeFareLabel) currencyLabelElements.tubeFareLabel.textContent = `Tube fare (${prefix})`;
+      if (currencyLabelElements.minuteRateLabel) currencyLabelElements.minuteRateLabel.textContent = `Minute rate (${prefix}/min)`;
+      if (currencyLabelElements.unlockFeeLabel) currencyLabelElements.unlockFeeLabel.textContent = `Unlock fee (${prefix})`;
+
+      if (regionKey === 'london') {
+        if (currencyLabelElements.pass30PriceLabel) currencyLabelElements.pass30PriceLabel.textContent = `30 mins bundle price (${prefix})`;
+        if (currencyLabelElements.pass30MinutesLabel) currencyLabelElements.pass30MinutesLabel.textContent = '30 mins bundle included minutes';
+        if (currencyLabelElements.pass60PriceLabel) currencyLabelElements.pass60PriceLabel.textContent = `60 mins bundle price (${prefix})`;
+        if (currencyLabelElements.pass60MinutesLabel) currencyLabelElements.pass60MinutesLabel.textContent = '60 mins bundle included minutes';
+        if (currencyLabelElements.pass200PriceLabel) currencyLabelElements.pass200PriceLabel.textContent = `200 mins bundle price (${prefix})`;
+        if (currencyLabelElements.pass200MinutesLabel) currencyLabelElements.pass200MinutesLabel.textContent = '200 mins bundle included minutes';
+        if (currencyLabelElements.pass400PriceLabel) currencyLabelElements.pass400PriceLabel.textContent = `400 mins bundle price (${prefix})`;
+        if (currencyLabelElements.pass400MinutesLabel) currencyLabelElements.pass400MinutesLabel.textContent = '400 mins bundle included minutes';
+        if (currencyLabelElements.subscriptionMonthlyPriceLabel) currencyLabelElements.subscriptionMonthlyPriceLabel.textContent = `LimePrime monthly price (${prefix})`;
+        if (currencyLabelElements.subscriptionRidePriceLabel) currencyLabelElements.subscriptionRidePriceLabel.textContent = `LimePrime flat ride price (${prefix})`;
+        if (currencyLabelElements.subscriptionRideMinutesLabel) currencyLabelElements.subscriptionRideMinutesLabel.textContent = 'LimePrime flat-rate minutes per ride';
+        if (currencyLabelElements.subscriptionOverageRateLabel) currencyLabelElements.subscriptionOverageRateLabel.textContent = `LimePrime overage rate (${prefix}/min)`;
+      } else {
+        if (currencyLabelElements.pass30PriceLabel) currencyLabelElements.pass30PriceLabel.textContent = `30 Minutes Pass price (${prefix})`;
+        if (currencyLabelElements.pass30MinutesLabel) currencyLabelElements.pass30MinutesLabel.textContent = '30 Minutes Pass included minutes';
+        if (currencyLabelElements.pass100PriceLabel) currencyLabelElements.pass100PriceLabel.textContent = `100 Minutes Pass price (${prefix})`;
+        if (currencyLabelElements.pass100MinutesLabel) currencyLabelElements.pass100MinutesLabel.textContent = '100 Minutes Pass included minutes';
+        if (currencyLabelElements.rides2PriceLabel) currencyLabelElements.rides2PriceLabel.textContent = `2 Rides Pass price (${prefix})`;
+        if (currencyLabelElements.rides2CountLabel) currencyLabelElements.rides2CountLabel.textContent = '2 Rides Pass included rides';
+        if (currencyLabelElements.rides2MinutesLabel) currencyLabelElements.rides2MinutesLabel.textContent = 'Minutes included per covered ride';
+        if (currencyLabelElements.unlocksMonthlyPriceLabel) currencyLabelElements.unlocksMonthlyPriceLabel.textContent = `Unlimited Free Unlocks price (${prefix})`;
+        if (currencyLabelElements.subscriptionMonthlyPriceLabel) currencyLabelElements.subscriptionMonthlyPriceLabel.textContent = `Dott Pro monthly price (${prefix})`;
+        if (currencyLabelElements.subscriptionRidePriceLabel) currencyLabelElements.subscriptionRidePriceLabel.textContent = `Dott Pro price per included ride (${prefix})`;
+        if (currencyLabelElements.subscriptionRideMinutesLabel) currencyLabelElements.subscriptionRideMinutesLabel.textContent = 'Dott Pro included minutes per ride';
+        if (currencyLabelElements.subscriptionOverageRateLabel) currencyLabelElements.subscriptionOverageRateLabel.textContent = `LimePrime overage rate (${prefix}/min)`;
+      }
+    }
+
+    function renderAssumptionNotes() {
+      assumptionNotes.innerHTML = `${currentRegionDef().notes.join('')}<p><strong>Ride variance</strong>, if changed above, is modelled as a small weighted spread around the average ride length for per-ride threshold products such as LimePrime and Dott Pro.</p><p>All monthly figures use the weeks-per-month value set above. This defaults to <strong>${DEFAULT_WEEKS_PER_MONTH.toFixed(3)} weeks</strong> but can be changed. This is a planning tool rather than a billing guarantee, so operator terms will always override the estimate.</p>`;
+    }
+
+    function applyRegionDefaults(regionKey, options = {}) {
+      const region = REGION_DEFAULTS[regionKey] || REGION_DEFAULTS.bristol;
+      inputs.region.value = region.key;
+      CONFIG_FIELD_IDS.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el && Object.prototype.hasOwnProperty.call(region.config, id)) {
+          el.value = region.config[id];
+        }
+      });
+      if (!options.preserveBusFare) {
+        inputs.busFare.value = region.defaultBusFare.toFixed(2);
+      }
+      if (!options.preserveTubeFare) {
+        inputs.tubeFare.value = region.defaultTubeFare.toFixed(2);
+      }
+      if (!region.tubeEnabled) {
+        inputs.includeTubeComparison.checked = false;
+      }
+      updateRegionVisibility();
+      updateComparisonVisibility();
+      updateCurrencyLabels();
+      renderAssumptionNotes();
+    }
+
+    function base62Encode(value) {
+      let number = BigInt(value);
+      if (number === 0n) return '0';
+      let output = '';
+      const base = BigInt(SHARE_RADIX.length);
+      while (number > 0n) {
+        const remainder = Number(number % base);
+        output = SHARE_RADIX[remainder] + output;
+        number /= base;
+      }
+      return output;
+    }
+
+    function base62Decode(text) {
+      let number = 0n;
+      const base = BigInt(SHARE_RADIX.length);
+      for (const char of String(text || '')) {
+        const index = SHARE_RADIX.indexOf(char);
+        if (index === -1) throw new Error('That share code contains an invalid character.');
+        number = (number * base) + BigInt(index);
+      }
+      return number;
+    }
+
+    function bytesToBase64Url(bytes) {
+      let binary = '';
+      bytes.forEach((byte) => {
+        binary += String.fromCharCode(byte);
+      });
+      return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+    }
+
+    function base64UrlToBytes(text) {
+      const normalised = String(text || '').replace(/-/g, '+').replace(/_/g, '/');
+      const padding = (4 - (normalised.length % 4)) % 4;
+      const binary = atob(normalised + '='.repeat(padding));
+      return Uint8Array.from(binary, (char) => char.charCodeAt(0));
+    }
+
+    function checksumSharePayload(values, customCurrency = '') {
+      let hash = 97;
+      values.forEach((value, index) => {
+        hash = (hash * 131 + Number(value) + index) % 1024;
+      });
+      for (const byte of new TextEncoder().encode(customCurrency)) {
+        hash = (hash * 131 + byte) % 1024;
+      }
+      return hash;
+    }
+
+    function quantiseCurrency(value) {
+      return Math.round(Number(value || 0) * 100);
+    }
+
+    function dequantiseCurrency(value) {
+      return Number(value || 0) / 100;
+    }
+
+    function quantiseWeeksPerMonth(value) {
+      return Math.round(Number(value || 0) * 1000);
+    }
+
+    function dequantiseWeeksPerMonth(value) {
+      return Number(value || 0) / 1000;
+    }
+
+    function setShareStatus(message = '', tone = '') {
+      if (!shareStatus) return;
+      shareStatus.textContent = message;
+      shareStatus.className = `share-status${tone ? ` ${tone}` : ''}`;
+    }
+
+    function getCurrentState() {
+      const config = getConfig();
+      return {
+        region: currentRegionKey(),
+        rideMinutes: clamp(Math.round(toNum(inputs.rideMinutesValue, 15)), 1, 60),
+        rideVariance: clamp(toNum(inputs.rideVariance, 1), 0, 15),
+        tripsPerDay: clamp(Math.round(toNum(inputs.tripsPerDay, 2)), 1, 12),
+        daysPerWeek: clamp(Math.round(toNum(inputs.daysPerWeek, 5)), 1, 7),
+        graphMax: clamp(Math.round(toNum(inputs.graphMax, 35)), 20, 60),
+        includeBusComparison: Boolean(inputs.includeBusComparison.checked),
+        busFare: Math.max(0, toNum(inputs.busFare, currentRegionDef().defaultBusFare)),
+        includeTubeComparison: currentRegionDef().tubeEnabled && Boolean(inputs.includeTubeComparison.checked),
+        tubeFare: Math.max(0, toNum(inputs.tubeFare, currentRegionDef().defaultTubeFare)),
+        currencyPrefix: getCurrencyPrefix(),
+        weeksPerMonth: config.weeksPerMonth,
+        minuteRate: config.minuteRate,
+        unlockFee: config.unlockFee,
+        pass30Price: config.pass30Price,
+        pass30Minutes: config.pass30Minutes,
+        pass60Price: config.pass60Price,
+        pass60Minutes: config.pass60Minutes,
+        pass100Price: config.pass100Price,
+        pass100Minutes: config.pass100Minutes,
+        pass200Price: config.pass200Price,
+        pass200Minutes: config.pass200Minutes,
+        pass400Price: config.pass400Price,
+        pass400Minutes: config.pass400Minutes,
+        rides2Price: config.rides2Price,
+        rides2Count: config.rides2Count,
+        rides2Minutes: config.rides2Minutes,
+        unlocksMonthlyPrice: config.unlocksMonthlyPrice,
+        subscriptionMonthlyPrice: config.subscriptionMonthlyPrice,
+        subscriptionRidePrice: config.subscriptionRidePrice,
+        subscriptionRideMinutes: config.subscriptionRideMinutes,
+        subscriptionOverageRate: config.subscriptionOverageRate
+      };
+    }
+
+    function normaliseDecodedState(state) {
+      const region = REGION_DEFAULTS[state.region] ? state.region : 'bristol';
+      const regionDefaults = REGION_DEFAULTS[region];
+      return {
+        region,
+        rideMinutes: state.rideMinutes ?? 15,
+        rideVariance: state.rideVariance ?? 1,
+        tripsPerDay: state.tripsPerDay ?? 2,
+        daysPerWeek: state.daysPerWeek ?? 5,
+        graphMax: state.graphMax ?? 35,
+        includeBusComparison: Boolean(state.includeBusComparison),
+        busFare: state.busFare ?? regionDefaults.defaultBusFare,
+        includeTubeComparison: regionDefaults.tubeEnabled ? Boolean(state.includeTubeComparison) : false,
+        tubeFare: state.tubeFare ?? regionDefaults.defaultTubeFare,
+        currencyPrefix: state.currencyPrefix || '£',
+        weeksPerMonth: state.weeksPerMonth ?? regionDefaults.config.weeksPerMonth,
+        minuteRate: state.minuteRate ?? regionDefaults.config.minuteRate,
+        unlockFee: state.unlockFee ?? regionDefaults.config.unlockFee,
+        pass30Price: state.pass30Price ?? regionDefaults.config.pass30Price,
+        pass30Minutes: state.pass30Minutes ?? regionDefaults.config.pass30Minutes,
+        pass60Price: state.pass60Price ?? regionDefaults.config.pass60Price,
+        pass60Minutes: state.pass60Minutes ?? regionDefaults.config.pass60Minutes,
+        pass100Price: state.pass100Price ?? regionDefaults.config.pass100Price,
+        pass100Minutes: state.pass100Minutes ?? regionDefaults.config.pass100Minutes,
+        pass200Price: state.pass200Price ?? regionDefaults.config.pass200Price,
+        pass200Minutes: state.pass200Minutes ?? regionDefaults.config.pass200Minutes,
+        pass400Price: state.pass400Price ?? regionDefaults.config.pass400Price,
+        pass400Minutes: state.pass400Minutes ?? regionDefaults.config.pass400Minutes,
+        rides2Price: state.rides2Price ?? regionDefaults.config.rides2Price,
+        rides2Count: state.rides2Count ?? regionDefaults.config.rides2Count,
+        rides2Minutes: state.rides2Minutes ?? regionDefaults.config.rides2Minutes,
+        unlocksMonthlyPrice: state.unlocksMonthlyPrice ?? regionDefaults.config.unlocksMonthlyPrice,
+        subscriptionMonthlyPrice: state.subscriptionMonthlyPrice ?? state.dottProMonthlyPrice ?? regionDefaults.config.subscriptionMonthlyPrice,
+        subscriptionRidePrice: state.subscriptionRidePrice ?? state.dottProRidePrice ?? regionDefaults.config.subscriptionRidePrice,
+        subscriptionRideMinutes: state.subscriptionRideMinutes ?? state.dottProRideMinutes ?? regionDefaults.config.subscriptionRideMinutes,
+        subscriptionOverageRate: state.subscriptionOverageRate ?? regionDefaults.config.subscriptionOverageRate
+      };
+    }
+
+    function applyState(state) {
+      const safeState = normaliseDecodedState(state || {});
+      inputs.region.value = safeState.region;
+      updateRegionVisibility();
+      inputs.rideMinutes.value = clamp(Math.round(Number(safeState.rideMinutes)), 1, 60);
+      inputs.rideMinutesValue.value = inputs.rideMinutes.value;
+      inputs.rideVariance.value = clamp(Number(safeState.rideVariance ?? 1), 0, 15);
+      inputs.tripsPerDay.value = clamp(Math.round(Number(safeState.tripsPerDay)), 1, 12);
+      inputs.daysPerWeek.value = clamp(Math.round(Number(safeState.daysPerWeek)), 1, 7);
+      inputs.graphMax.value = clamp(Math.round(Number(safeState.graphMax) / 5) * 5, 20, 60);
+      inputs.includeBusComparison.checked = Boolean(safeState.includeBusComparison);
+      inputs.busFare.value = Math.max(0, Number(safeState.busFare)).toFixed(2);
+      inputs.includeTubeComparison.checked = Boolean(safeState.includeTubeComparison);
+      inputs.tubeFare.value = Math.max(0, Number(safeState.tubeFare)).toFixed(2);
+
+      const directMap = {
+        currencyPrefix: 'currencyPrefix',
+        weeksPerMonth: 'weeksPerMonth',
+        minuteRate: 'minuteRate',
+        unlockFee: 'unlockFee',
+        pass30Price: 'pass30Price',
+        pass30Minutes: 'pass30Minutes',
+        pass60Price: 'pass60Price',
+        pass60Minutes: 'pass60Minutes',
+        pass100Price: 'pass100Price',
+        pass100Minutes: 'pass100Minutes',
+        pass200Price: 'pass200Price',
+        pass200Minutes: 'pass200Minutes',
+        pass400Price: 'pass400Price',
+        pass400Minutes: 'pass400Minutes',
+        rides2Price: 'rides2Price',
+        rides2Count: 'rides2Count',
+        rides2Minutes: 'rides2Minutes',
+        unlocksMonthlyPrice: 'unlocksMonthlyPrice',
+        subscriptionMonthlyPrice: 'subscriptionMonthlyPrice',
+        subscriptionRidePrice: 'subscriptionRidePrice',
+        subscriptionRideMinutes: 'subscriptionRideMinutes',
+        subscriptionOverageRate: 'subscriptionOverageRate'
+      };
+
+      Object.entries(directMap).forEach(([stateKey, elementId]) => {
+        const el = document.getElementById(elementId);
+        if (!el || safeState[stateKey] == null) return;
+        el.value = safeState[stateKey];
+      });
+
+      updateRegionVisibility();
+      updateComparisonVisibility();
+      updateCurrencyLabels();
+      renderAssumptionNotes();
+      render();
+    }
+
+    function encodeCompactStateNew(state) {
+      const currencyCode = COMMON_CURRENCIES.indexOf(state.currencyPrefix);
+      const compactState = {
+        regionCode: REGION_CODES[state.region] || REGION_CODES.bristol,
+        rideMinutes: clamp(Math.round(Number(state.rideMinutes)), 1, 60),
+        tripsPerDay: clamp(Math.round(Number(state.tripsPerDay)), 1, 12),
+        daysPerWeek: clamp(Math.round(Number(state.daysPerWeek)), 1, 7),
+        graphMaxIndex: clamp(Math.round((Number(state.graphMax) - 20) / 5), 0, 8),
+        includeBusComparison: state.includeBusComparison ? 1 : 0,
+        includeTubeComparison: state.includeTubeComparison ? 1 : 0,
+        busFareCents: quantiseCurrency(state.busFare),
+        tubeFareCents: quantiseCurrency(state.tubeFare),
+        weeksPerMonthMillis: quantiseWeeksPerMonth(state.weeksPerMonth),
+        minuteRateCents: quantiseCurrency(state.minuteRate),
+        unlockFeeCents: quantiseCurrency(state.unlockFee),
+        pass30PriceCents: quantiseCurrency(state.pass30Price),
+        pass30Minutes: Math.round(Number(state.pass30Minutes)),
+        pass60PriceCents: quantiseCurrency(state.pass60Price),
+        pass60Minutes: Math.round(Number(state.pass60Minutes)),
+        pass100PriceCents: quantiseCurrency(state.pass100Price),
+        pass100Minutes: Math.round(Number(state.pass100Minutes)),
+        pass200PriceCents: quantiseCurrency(state.pass200Price),
+        pass200Minutes: Math.round(Number(state.pass200Minutes)),
+        pass400PriceCents: quantiseCurrency(state.pass400Price),
+        pass400Minutes: Math.round(Number(state.pass400Minutes)),
+        rides2PriceCents: quantiseCurrency(state.rides2Price),
+        rides2Count: Math.round(Number(state.rides2Count)),
+        rides2Minutes: Math.round(Number(state.rides2Minutes)),
+        unlocksMonthlyPriceCents: quantiseCurrency(state.unlocksMonthlyPrice),
+        subscriptionMonthlyPriceCents: quantiseCurrency(state.subscriptionMonthlyPrice),
+        subscriptionRidePriceCents: quantiseCurrency(state.subscriptionRidePrice),
+        subscriptionRideMinutes: Math.round(Number(state.subscriptionRideMinutes)),
+        subscriptionOverageRateCents: quantiseCurrency(state.subscriptionOverageRate),
+        currencyCode: currencyCode >= 0 ? currencyCode : 0
+      };
+
+      NEW_SHARE_FIELD_SPECS.forEach(([name, width]) => {
+        if (name === 'checksum') return;
+        const maxValue = (2 ** width) - 1;
+        const value = compactState[name];
+        if (!Number.isInteger(value) || value < 0 || value > maxValue) {
+          throw new Error(`The current ${name} value is outside the compact share-code range.`);
+        }
+      });
+
+      compactState.checksum = checksumSharePayload(
+        NEW_SHARE_FIELD_SPECS.filter(([name]) => name !== 'checksum').map(([name]) => compactState[name]),
+        currencyCode >= 0 ? '' : state.currencyPrefix
+      );
+
+      let packed = 0n;
+      NEW_SHARE_FIELD_SPECS.forEach(([name, width]) => {
+        packed = (packed << BigInt(width)) | BigInt(compactState[name]);
+      });
+
+      let code = `B${base62Encode(packed)}`;
+      if (currencyCode < 0) {
+        code += `.${bytesToBase64Url(new TextEncoder().encode(state.currencyPrefix))}`;
+      }
+      return code;
+    }
+
+    function decodeCompactFromSpecs(text, specs) {
+      const raw = String(text || '').trim();
+      const withoutPrefix = raw.slice(1);
+      const [packedPart, customCurrencyPart = ''] = withoutPrefix.split('.', 2);
+      if (!packedPart) throw new Error('That share code is missing its settings payload.');
+
+      let packed = base62Decode(packedPart);
+      const compactValues = {};
+      [...specs].reverse().forEach(([name, width]) => {
+        const mask = (1n << BigInt(width)) - 1n;
+        compactValues[name] = Number(packed & mask);
+        packed >>= BigInt(width);
+      });
+
+      const customCurrency = customCurrencyPart
+        ? new TextDecoder().decode(base64UrlToBytes(customCurrencyPart))
+        : '';
+
+      const expectedChecksum = checksumSharePayload(
+        specs.filter(([name]) => name !== 'checksum').map(([name]) => compactValues[name]),
+        compactValues.currencyCode === 0 ? customCurrency : ''
+      );
+
+      if (compactValues.checksum !== expectedChecksum) {
+        throw new Error('That share code looks corrupted or incomplete.');
+      }
+
+      return { compactValues, customCurrency };
+    }
+
+    function decodeCompactStateNew(text) {
+      const { compactValues, customCurrency } = decodeCompactFromSpecs(text, NEW_SHARE_FIELD_SPECS);
+      const state = {
+        region: REGION_CODES_REVERSE[compactValues.regionCode] || 'bristol',
+        rideMinutes: compactValues.rideMinutes,
+        tripsPerDay: compactValues.tripsPerDay,
+        daysPerWeek: compactValues.daysPerWeek,
+        graphMax: 20 + (compactValues.graphMaxIndex * 5),
+        includeBusComparison: Boolean(compactValues.includeBusComparison),
+        includeTubeComparison: Boolean(compactValues.includeTubeComparison),
+        busFare: dequantiseCurrency(compactValues.busFareCents),
+        tubeFare: dequantiseCurrency(compactValues.tubeFareCents),
+        currencyPrefix: compactValues.currencyCode === 0 ? customCurrency : COMMON_CURRENCIES[compactValues.currencyCode],
+        weeksPerMonth: dequantiseWeeksPerMonth(compactValues.weeksPerMonthMillis),
+        minuteRate: dequantiseCurrency(compactValues.minuteRateCents),
+        unlockFee: dequantiseCurrency(compactValues.unlockFeeCents),
+        pass30Price: dequantiseCurrency(compactValues.pass30PriceCents),
+        pass30Minutes: compactValues.pass30Minutes,
+        pass60Price: dequantiseCurrency(compactValues.pass60PriceCents),
+        pass60Minutes: compactValues.pass60Minutes,
+        pass100Price: dequantiseCurrency(compactValues.pass100PriceCents),
+        pass100Minutes: compactValues.pass100Minutes,
+        pass200Price: dequantiseCurrency(compactValues.pass200PriceCents),
+        pass200Minutes: compactValues.pass200Minutes,
+        pass400Price: dequantiseCurrency(compactValues.pass400PriceCents),
+        pass400Minutes: compactValues.pass400Minutes,
+        rides2Price: dequantiseCurrency(compactValues.rides2PriceCents),
+        rides2Count: compactValues.rides2Count,
+        rides2Minutes: compactValues.rides2Minutes,
+        unlocksMonthlyPrice: dequantiseCurrency(compactValues.unlocksMonthlyPriceCents),
+        subscriptionMonthlyPrice: dequantiseCurrency(compactValues.subscriptionMonthlyPriceCents),
+        subscriptionRidePrice: dequantiseCurrency(compactValues.subscriptionRidePriceCents),
+        subscriptionRideMinutes: compactValues.subscriptionRideMinutes,
+        subscriptionOverageRate: dequantiseCurrency(compactValues.subscriptionOverageRateCents)
+      };
+      if (!state.currencyPrefix) state.currencyPrefix = '£';
+      return state;
+    }
+
+    function decodeCompactStateOld(text) {
+      const { compactValues, customCurrency } = decodeCompactFromSpecs(text, OLD_SHARE_FIELD_SPECS);
+      const state = {
+        region: 'bristol',
+        rideMinutes: compactValues.rideMinutes,
+        tripsPerDay: compactValues.tripsPerDay,
+        daysPerWeek: compactValues.daysPerWeek,
+        graphMax: 20 + (compactValues.graphMaxIndex * 5),
+        includeBusComparison: Boolean(compactValues.includeBusComparison),
+        includeTubeComparison: false,
+        busFare: dequantiseCurrency(compactValues.busFareCents),
+        tubeFare: REGION_DEFAULTS.bristol.defaultTubeFare,
+        currencyPrefix: compactValues.currencyCode === 0 ? customCurrency : COMMON_CURRENCIES[compactValues.currencyCode],
+        weeksPerMonth: dequantiseWeeksPerMonth(compactValues.weeksPerMonthMillis),
+        minuteRate: dequantiseCurrency(compactValues.minuteRateCents),
+        unlockFee: dequantiseCurrency(compactValues.unlockFeeCents),
+        pass30Price: dequantiseCurrency(compactValues.pass30PriceCents),
+        pass30Minutes: compactValues.pass30Minutes,
+        pass100Price: dequantiseCurrency(compactValues.pass100PriceCents),
+        pass100Minutes: compactValues.pass100Minutes,
+        rides2Price: dequantiseCurrency(compactValues.rides2PriceCents),
+        rides2Count: compactValues.rides2Count,
+        rides2Minutes: compactValues.rides2Minutes,
+        unlocksMonthlyPrice: dequantiseCurrency(compactValues.unlocksMonthlyPriceCents),
+        subscriptionMonthlyPrice: dequantiseCurrency(compactValues.dottProMonthlyPriceCents),
+        subscriptionRidePrice: dequantiseCurrency(compactValues.dottProRidePriceCents),
+        subscriptionRideMinutes: compactValues.dottProRideMinutes,
+        subscriptionOverageRate: dequantiseCurrency(compactValues.minuteRateCents)
+      };
+      if (!state.currencyPrefix) state.currencyPrefix = '£';
+      return state;
+    }
+
+    function encodeJsonState(state) {
+      const json = JSON.stringify(state);
+      return `J${bytesToBase64Url(new TextEncoder().encode(json))}`;
+    }
+
+    function decodeJsonState(text) {
+      const raw = String(text || '').trim().slice(1);
+      if (!raw) throw new Error('That share code is empty.');
+      const json = new TextDecoder().decode(base64UrlToBytes(raw));
+      return JSON.parse(json);
+    }
+
+    function encodeStateToCode(state) {
+      if (Number(state.rideVariance ?? 1) !== 1) {
+        return encodeJsonState(state);
+      }
+      try {
+        return encodeCompactStateNew(state);
+      } catch (error) {
+        return encodeJsonState(state);
+      }
+    }
+
+    function decodeStateFromCode(text) {
+      const raw = String(text || '').trim();
+      if (!raw) throw new Error('Paste a share code first.');
+      if (raw.startsWith('B')) return decodeCompactStateNew(raw);
+      if (raw.startsWith('A')) return decodeCompactStateOld(raw);
+      if (raw.startsWith('J')) return decodeJsonState(raw);
+      throw new Error('That share code format is not recognised.');
+    }
+
+    function normaliseShareInput(text) {
+      const raw = String(text || '').trim();
+      if (!raw) return '';
+      try {
+        const url = new URL(raw, window.location.href);
+        if (url.hash) return url.hash.slice(1).trim();
+      } catch (error) {
+      }
+      const hashIndex = raw.indexOf('#');
+      if (hashIndex >= 0) return raw.slice(hashIndex + 1).trim();
+      return raw.replace(/^#/, '').trim();
+    }
+
+    function getShareUrl() {
+      return `${window.location.href.split('#')[0]}#${encodeStateToCode(getCurrentState())}`;
+    }
+
+    function syncHashToCurrentState() {
+      const code = encodeStateToCode(getCurrentState());
+      history.replaceState(null, '', `#${code}`);
+      return code;
+    }
+
+    function tryLoadStateFromHash() {
+      const hashCode = normaliseShareInput(window.location.hash);
+      if (!hashCode) return false;
+      const state = decodeStateFromCode(hashCode);
+      applyState(state);
+      setShareStatus('Loaded settings from the link.', 'success');
+      return true;
+    }
+
+    function updateShareCodePreview() {
+      return encodeStateToCode(getCurrentState());
+    }
+
+    function describeDuration(days) {
+      return `${days}-day`;
+    }
+
+    function getRideLengthDistribution(rideMinutes, rideVariance) {
+      const mean = clamp(Number(rideMinutes) || 0, 1, 60);
+      const variance = Math.max(0, Number(rideVariance) || 0);
+      if (variance === 0) {
+        return [{ minutes: mean, weight: 1 }];
+      }
+      return [
+        { minutes: clamp(mean - variance, 1, 60), weight: 0.15 },
+        { minutes: clamp(mean - (variance / 2), 1, 60), weight: 0.20 },
+        { minutes: mean, weight: 0.30 },
+        { minutes: clamp(mean + (variance / 2), 1, 60), weight: 0.20 },
+        { minutes: clamp(mean + variance, 1, 60), weight: 0.15 }
+      ];
+    }
+
+    function expectedRideOverageMinutes(rideMinutes, rideVariance, includedMinutes) {
+      return getRideLengthDistribution(rideMinutes, rideVariance).reduce((total, point) => {
+        return total + (point.weight * Math.max(0, point.minutes - includedMinutes));
+      }, 0);
+    }
+
+    function costNoPass(rideMinutes, tripsPerDay, daysPerWeek, config) {
+      const { ridesPerMonth, minutesPerMonth } = monthActivity(rideMinutes, tripsPerDay, daysPerWeek, config.weeksPerMonth);
+      return ridesPerMonth * config.unlockFee + minutesPerMonth * config.minuteRate;
+    }
+
+    function costUnlockPass(rideMinutes, tripsPerDay, daysPerWeek, config, priceField) {
+      const { minutesPerMonth } = monthActivity(rideMinutes, tripsPerDay, daysPerWeek, config.weeksPerMonth);
+      if (daysPerWeek === 0 || tripsPerDay === 0) return 0;
+      return config[priceField] + minutesPerMonth * config.minuteRate;
+    }
+
+    function costSubscription(rideMinutes, rideVariance, tripsPerDay, daysPerWeek, config, strategy) {
+      const { ridesPerMonth } = monthActivity(rideMinutes, tripsPerDay, daysPerWeek, config.weeksPerMonth);
+      if (daysPerWeek === 0 || tripsPerDay === 0) return 0;
+      const flatMinutes = config[strategy.rideMinutesField];
+      const overageRate = config[strategy.overageField] ?? config.minuteRate;
+      const extraMinutesPerRide = expectedRideOverageMinutes(rideMinutes, rideVariance, flatMinutes);
+      return config[strategy.monthlyField] + (ridesPerMonth * config[strategy.ridePriceField]) + (ridesPerMonth * extraMinutesPerRide * overageRate);
+    }
+
+    function costMinuteBundle(rideMinutes, tripsPerDay, daysPerWeek, config, strategy) {
+      if (daysPerWeek === 0 || tripsPerDay === 0) return 0;
+      const includedMinutes = config[strategy.minutesField];
+      const price = config[strategy.priceField];
+      if (strategy.durationDays === 1) {
+        const activeDaysPerMonth = daysPerWeek * config.weeksPerMonth;
+        const dailyMinutes = rideMinutes * tripsPerDay;
+        let bestDayCost = Infinity;
+        const maxPasses = Math.max(1, Math.ceil(dailyMinutes / includedMinutes) + 1);
+        for (let passes = 1; passes <= maxPasses; passes += 1) {
+          const uncoveredMinutes = Math.max(0, dailyMinutes - (includedMinutes * passes));
+          const dayCost = (passes * price) + (uncoveredMinutes * config.minuteRate);
+          if (dayCost < bestDayCost) bestDayCost = dayCost;
+        }
+        return bestDayCost * activeDaysPerMonth;
+      }
+
+      const cycleMinutes = rideMinutes * tripsPerDay * daysPerWeek * (strategy.durationDays / 7);
+      const cyclesPerMonth = (config.weeksPerMonth * 7) / strategy.durationDays;
+      let bestCycleCost = Infinity;
+      const maxPasses = Math.max(1, Math.ceil(cycleMinutes / includedMinutes) + 1);
+      for (let passes = 1; passes <= maxPasses; passes += 1) {
+        const uncoveredMinutes = Math.max(0, cycleMinutes - (includedMinutes * passes));
+        const cycleCost = (passes * price) + (uncoveredMinutes * config.minuteRate);
+        if (cycleCost < bestCycleCost) bestCycleCost = cycleCost;
+      }
+      return bestCycleCost * cyclesPerMonth;
+    }
+
+    function costRideBundle(rideMinutes, rideVariance, tripsPerDay, daysPerWeek, config, strategy) {
+      if (daysPerWeek === 0 || tripsPerDay === 0) return 0;
+      const activeDaysPerMonth = daysPerWeek * config.weeksPerMonth;
+      let bestDayCost = Infinity;
+      const maxPasses = Math.max(1, Math.ceil(tripsPerDay / config[strategy.countField]));
+      const expectedCoveredRideOverage = expectedRideOverageMinutes(rideMinutes, rideVariance, config[strategy.minutesField]);
+
+      for (let passes = 1; passes <= maxPasses; passes += 1) {
+        const coveredRides = Math.min(tripsPerDay, config[strategy.countField] * passes);
+        const uncoveredRides = Math.max(0, tripsPerDay - coveredRides);
+        const overageMinutesOnCoveredRides = coveredRides * expectedCoveredRideOverage;
+        const uncoveredRideCost = uncoveredRides * (config.unlockFee + (rideMinutes * config.minuteRate));
+        const dayCost = (passes * config[strategy.priceField]) + (overageMinutesOnCoveredRides * config.minuteRate) + uncoveredRideCost;
+        if (dayCost < bestDayCost) bestDayCost = dayCost;
+      }
+
+      return bestDayCost * activeDaysPerMonth;
+    }
+
+    function costComparator(tripsPerDay, daysPerWeek, fare, weeksPerMonth) {
+      const { ridesPerMonth } = monthActivity(0, tripsPerDay, daysPerWeek, weeksPerMonth);
+      return ridesPerMonth * fare;
+    }
+
+    function buildStrategies(rideMinutes, rideVariance, tripsPerDay, daysPerWeek, config, comparisons) {
+      const strategies = currentRegionDef().strategies.map((strategy) => {
+        if (strategy.type === 'noPass') {
+          return {
+            id: strategy.id,
+            name: strategy.name,
+            cost: costNoPass(rideMinutes, tripsPerDay, daysPerWeek, config),
+            model: `Pays ${formatCurrency(config.unlockFee)} unlock + ${formatCurrency(config.minuteRate)}/min on every ride.`
+          };
+        }
+        if (strategy.type === 'unlockPass') {
+          return {
+            id: strategy.id,
+            name: strategy.name,
+            cost: costUnlockPass(rideMinutes, tripsPerDay, daysPerWeek, config, strategy.priceField),
+            model: `Monthly unlock waiver at ${formatCurrency(config[strategy.priceField])}; minutes still billed separately.`
+          };
+        }
+        if (strategy.type === 'subscription') {
+          return {
+            id: strategy.id,
+            name: strategy.name,
+            cost: costSubscription(rideMinutes, rideVariance, tripsPerDay, daysPerWeek, config, strategy),
+            model: `Monthly fee ${formatCurrency(config[strategy.monthlyField])} + ${formatCurrency(config[strategy.ridePriceField])} per ride up to ${config[strategy.rideMinutesField]} min.`
+          };
+        }
+        if (strategy.type === 'rideBundle') {
+          return {
+            id: strategy.id,
+            name: strategy.name,
+            cost: costRideBundle(rideMinutes, rideVariance, tripsPerDay, daysPerWeek, config, strategy),
+            model: `Daily ride bundle at ${formatCurrency(config[strategy.priceField])} with ${config[strategy.countField]} rides of ${config[strategy.minutesField]} min.`
+          };
+        }
+        return {
+          id: strategy.id,
+          name: strategy.name,
+          cost: costMinuteBundle(rideMinutes, tripsPerDay, daysPerWeek, config, strategy),
+          model: `${describeDuration(strategy.durationDays)} minute bundle at ${formatCurrency(config[strategy.priceField])} with ${config[strategy.minutesField]} included minutes.`
+        };
+      });
+
+      if (comparisons.bus.enabled) {
+        strategies.push({
+          id: 'bus',
+          name: 'Bus (single)',
+          cost: costComparator(tripsPerDay, daysPerWeek, comparisons.bus.fare, config.weeksPerMonth),
+          model: `Assumes each journey uses one bus ticket at ${formatCurrency(comparisons.bus.fare)}.`
+        });
+      }
+      if (comparisons.tube.enabled) {
+        strategies.push({
+          id: 'tube',
+          name: 'Tube (single)',
+          cost: costComparator(tripsPerDay, daysPerWeek, comparisons.tube.fare, config.weeksPerMonth),
+          model: `Assumes each journey uses one Tube fare at ${formatCurrency(comparisons.tube.fare)}.`
+        });
+      }
+
+      return strategies;
+    }
+
+    function buildTable(sortedStrategies) {
+      resultsTable.innerHTML = '';
+      const bestCost = sortedStrategies[0]?.cost ?? 0;
+      sortedStrategies.forEach((strategy, index) => {
+        const tr = document.createElement('tr');
+        const yearly = strategy.cost * 12;
+        const delta = strategy.cost - bestCost;
+        tr.innerHTML = `
+          <td>
+            <strong>${strategy.name}</strong><br />
+            <span class="small">${strategy.id === sortedStrategies[0].id ? 'Best value for this exact usage pattern.' : delta < 5 ? 'Close to the winner.' : ''}</span>
+          </td>
+          <td><strong>${formatCurrency(strategy.cost)}</strong></td>
+          <td>${formatCurrency(yearly)}</td>
+          <td class="small">${strategy.model}</td>
+          <td>${index === 0 ? '<span class="pill best-tag">Best</span>' : `<span class="pill">#${index + 1}</span>`}</td>
+        `;
+        resultsTable.appendChild(tr);
+      });
+    }
+
+    function buildSummary(rideMinutes, tripsPerDay, daysPerWeek, sortedStrategies, weeksPerMonth) {
+      const best = sortedStrategies[0];
+      const second = sortedStrategies[1];
+      const { ridesPerMonth, minutesPerMonth } = monthActivity(rideMinutes, tripsPerDay, daysPerWeek, weeksPerMonth);
+      const savingsVsSecond = second ? second.cost - best.cost : 0;
+      const safeRidesPerMonth = ridesPerMonth > 0 ? ridesPerMonth : 0;
+      const safeMinutesPerMonth = minutesPerMonth > 0 ? minutesPerMonth : 0;
+      const perRide = safeRidesPerMonth > 0 ? best.cost / safeRidesPerMonth : 0;
+      const perMinute = safeMinutesPerMonth > 0 ? best.cost / safeMinutesPerMonth : 0;
+
+      bestName.textContent = best.name;
+      bestSummary.textContent = second
+        ? `Saves about ${formatCurrency(savingsVsSecond)} per month against ${second.name}.`
+        : 'Only one strategy could be ranked.';
+      bestMonthly.textContent = formatCurrency(best.cost);
+      bestYearly.textContent = `About ${formatCurrency(best.cost * 12)} per year.`;
+      monthlyRides.textContent = `${compactNumber.format(ridesPerMonth)} rides`;
+      monthlyMinutes.textContent = `${compactNumber.format(minutesPerMonth)} ride minutes per month.`;
+      costPerRide.textContent = safeRidesPerMonth > 0 ? `${formatCurrency(perRide)} per ride` : '—';
+      costPerMinute.textContent = safeMinutesPerMonth > 0 ? `${formatCurrency(perMinute)} per real ride minute.` : 'No riding activity selected.';
+    }
+
+    function buildLegend(strategies) {
+      legend.innerHTML = strategies.map((strategy) => `
+        <div class="legend-item">
+          <span class="swatch" style="background:${COLORS[strategy.id] || '#475569'}"></span>
+          <span>${strategy.name}</span>
+        </div>
+      `).join('');
+    }
+
+    function buildDominantList(tripsPerDay, daysPerWeek, graphMax, rideVariance, config, comparisons) {
+      const picks = [];
+      for (let mins = 1; mins <= graphMax; mins += 1) {
+        const sorted = [...buildStrategies(mins, rideVariance, tripsPerDay, daysPerWeek, config, comparisons)].sort((a, b) => a.cost - b.cost);
+        picks.push({ mins, name: sorted[0].name, id: sorted[0].id });
+      }
+
+      const ranges = [];
+      picks.forEach((entry) => {
+        const last = ranges[ranges.length - 1];
+        if (!last || last.name !== entry.name) {
+          ranges.push({ name: entry.name, id: entry.id, start: entry.mins, end: entry.mins });
+        } else {
+          last.end = entry.mins;
+        }
+      });
+
+      dominantList.innerHTML = '';
+      ranges.forEach((range) => {
+        const div = document.createElement('div');
+        div.className = 'dominant-item';
+        div.innerHTML = `
+          <div class="dominant-range">${range.start}–${range.end} min/ride</div>
+          <div class="dominant-name">${range.name}</div>
+        `;
+        dominantList.appendChild(div);
+      });
+    }
+
+    function buildChart(tripsPerDay, daysPerWeek, graphMax, rideVariance, config, comparisons, strategies) {
+      const width = 960;
+      const height = 420;
+      const margin = { top: 24, right: 24, bottom: 54, left: 72 };
+      const innerWidth = width - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
+
+      const data = [];
+      for (let mins = 1; mins <= graphMax; mins += 1) {
+        const strategyMap = Object.fromEntries(
+          buildStrategies(mins, rideVariance, tripsPerDay, daysPerWeek, config, comparisons).map((strategy) => [strategy.id, strategy.cost])
+        );
+        data.push({ mins, ...strategyMap });
+      }
+
+      const allValues = data.flatMap((row) => strategies.map((strategy) => row[strategy.id]));
+      const minValue = Math.min(...allValues);
+      const maxValue = Math.max(...allValues);
+      const yMin = Math.max(0, Math.floor(minValue * 0.95));
+      const yMax = Math.ceil(maxValue * 1.05);
+
+      const xScale = (x) => margin.left + ((x - 1) / Math.max(1, graphMax - 1)) * innerWidth;
+      const yScale = (y) => margin.top + innerHeight - ((y - yMin) / Math.max(1, yMax - yMin)) * innerHeight;
+
+      const yTicks = 5;
+      const yTickValues = Array.from({ length: yTicks + 1 }, (_, i) => yMin + ((yMax - yMin) / yTicks) * i);
+      const xTickStep = graphMax <= 30 ? 5 : 10;
+      const xTickValues = [];
+      for (let x = 0; x <= graphMax; x += xTickStep) {
+        if (x >= 1) xTickValues.push(x);
+      }
+      if (!xTickValues.includes(graphMax)) xTickValues.push(graphMax);
+
+      const gridLines = yTickValues.map((y) => {
+        const yPos = yScale(y);
+        return `
+          <line x1="${margin.left}" y1="${yPos}" x2="${width - margin.right}" y2="${yPos}" stroke="#e8edf6" stroke-width="1" />
+          <text x="${margin.left - 10}" y="${yPos + 4}" text-anchor="end" font-size="12" fill="#62708a">${formatCurrency(y)}</text>
+        `;
+      }).join('');
+
+      const xTicks = xTickValues.map((x) => {
+        const xPos = xScale(x);
+        return `
+          <line x1="${xPos}" y1="${margin.top + innerHeight}" x2="${xPos}" y2="${margin.top + innerHeight + 6}" stroke="#94a3b8" stroke-width="1" />
+          <text x="${xPos}" y="${height - 16}" text-anchor="middle" font-size="12" fill="#62708a">${x}m</text>
+        `;
+      }).join('');
+
+      const polylines = strategies.map((strategy) => {
+        const points = data.map((row) => `${xScale(row.mins)},${yScale(row[strategy.id])}`).join(' ');
+        const last = data[data.length - 1];
+        const color = COLORS[strategy.id] || '#475569';
+        return `
+          <polyline fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${points}" />
+          <text x="${xScale(last.mins) - 4}" y="${yScale(last[strategy.id]) - 8}" text-anchor="end" font-size="12" fill="${color}">${strategy.name}</text>
+        `;
+      }).join('');
+
+      chart.innerHTML = `
+        <rect x="0" y="0" width="${width}" height="${height}" fill="#ffffff" rx="18" />
+        ${gridLines}
+        <line x1="${margin.left}" y1="${margin.top + innerHeight}" x2="${width - margin.right}" y2="${margin.top + innerHeight}" stroke="#94a3b8" stroke-width="1.2" />
+        <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + innerHeight}" stroke="#94a3b8" stroke-width="1.2" />
+        ${xTicks}
+        ${polylines}
+        <text x="${width / 2}" y="${height - 2}" text-anchor="middle" font-size="13" fill="#475569">Average ride length</text>
+        <text x="18" y="${height / 2}" text-anchor="middle" font-size="13" fill="#475569" transform="rotate(-90 18 ${height / 2})">Estimated monthly cost</text>
+      `;
+    }
+
+    function render() {
+      const rideMinutes = clamp(toNum(inputs.rideMinutesValue, 15), 1, 60);
+      const rideVariance = clamp(toNum(inputs.rideVariance, 1), 0, 15);
+      const tripsPerDay = clamp(Math.round(toNum(inputs.tripsPerDay, 2)), 1, 12);
+      const daysPerWeek = clamp(Math.round(toNum(inputs.daysPerWeek, 5)), 1, 7);
+      const graphMax = clamp(toNum(inputs.graphMax, 35), 20, 60);
+      const config = getConfig();
+      const comparisons = getComparisonSettings();
+
+      inputs.rideMinutes.value = rideMinutes;
+      if (document.activeElement !== inputs.rideMinutesValue) inputs.rideMinutesValue.value = rideMinutes;
+      if (document.activeElement !== inputs.rideVariance) inputs.rideVariance.value = rideVariance;
+      inputs.tripsPerDay.value = tripsPerDay;
+      inputs.daysPerWeek.value = daysPerWeek;
+      inputs.graphMax.value = graphMax;
+
+      graphMaxValue.textContent = `${graphMax} min`;
+      updateRegionVisibility();
+      updateComparisonVisibility();
+      updateCurrencyLabels();
+      renderAssumptionNotes();
+
+      const strategies = buildStrategies(rideMinutes, rideVariance, tripsPerDay, daysPerWeek, config, comparisons);
+      const sortedStrategies = [...strategies].sort((a, b) => a.cost - b.cost);
+      buildSummary(rideMinutes, tripsPerDay, daysPerWeek, sortedStrategies, config.weeksPerMonth);
+      buildTable(sortedStrategies);
+      buildLegend(strategies);
+      buildChart(tripsPerDay, daysPerWeek, graphMax, rideVariance, config, comparisons, strategies);
+      buildDominantList(tripsPerDay, daysPerWeek, graphMax, rideVariance, config, comparisons);
+      updateShareCodePreview();
+    }
+
+    let renderDebounceTimer;
+    function debouncedRender(delay = 75) {
+      window.clearTimeout(renderDebounceTimer);
+      renderDebounceTimer = window.setTimeout(render, delay);
+    }
+
+    Object.entries(inputs).forEach(([key, input]) => {
+      if (!input) return;
+      if (key === 'rideMinutes' || key === 'rideMinutesValue' || key === 'region') return;
+      input.addEventListener('input', render);
+      input.addEventListener('change', render);
+    });
+
+    inputs.region.addEventListener('change', () => {
+      applyRegionDefaults(inputs.region.value);
+      render();
+    });
+
+    inputs.rideMinutes.addEventListener('input', () => {
+      inputs.rideMinutesValue.value = inputs.rideMinutes.value;
+      debouncedRender(75);
+    });
+
+    inputs.rideMinutes.addEventListener('change', () => {
+      inputs.rideMinutesValue.value = inputs.rideMinutes.value;
+      render();
+    });
+
+    inputs.rideMinutesValue.addEventListener('input', () => {
+      const typedMinutes = clamp(Math.round(toNum(inputs.rideMinutesValue, toNum(inputs.rideMinutes, 15))), 1, 60);
+      inputs.rideMinutes.value = typedMinutes;
+      render();
+    });
+
+    inputs.rideMinutesValue.addEventListener('change', () => {
+      const typedMinutes = clamp(Math.round(toNum(inputs.rideMinutesValue, toNum(inputs.rideMinutes, 15))), 1, 60);
+      inputs.rideMinutesValue.value = typedMinutes;
+      inputs.rideMinutes.value = typedMinutes;
+      render();
+    });
+
+    document.querySelectorAll('.preset').forEach((button) => {
+      button.addEventListener('click', () => {
+        inputs.rideMinutes.value = button.dataset.minutes;
+        inputs.rideMinutesValue.value = button.dataset.minutes;
+        inputs.tripsPerDay.value = button.dataset.trips;
+        inputs.daysPerWeek.value = button.dataset.days;
+        render();
+      });
+    });
+
+    configInputs.forEach((input) => {
+      input.addEventListener('input', render);
+      input.addEventListener('change', render);
+    });
+
+    resetPricingButton.addEventListener('click', () => {
+      applyRegionDefaults(currentRegionKey(), { preserveBusFare: false, preserveTubeFare: false });
+      render();
+    });
+
+    inputs.includeBusComparison.addEventListener('change', () => {
+      updateComparisonVisibility();
+      render();
+    });
+
+    inputs.includeTubeComparison.addEventListener('change', () => {
+      updateComparisonVisibility();
+      render();
+    });
+
+    copyShareLinkButton.addEventListener('click', async () => {
+      try {
+        syncHashToCurrentState();
+        await navigator.clipboard.writeText(getShareUrl());
+        setShareStatus('Copied shareable link to your clipboard.', 'success');
+      } catch (error) {
+        setShareStatus(error.message || 'Could not copy the shareable link.', 'error');
+      }
+    });
+
+    window.addEventListener('hashchange', () => {
+      try {
+        if (!window.location.hash) return;
+        tryLoadStateFromHash();
+      } catch (error) {
+        setShareStatus(error.message || 'Could not load the shared link.', 'error');
+      }
+    });
+
+    applyRegionDefaults('bristol');
+    if (!tryLoadStateFromHash()) {
+      render();
+    }
+  </script>
+</body>
+</html>
