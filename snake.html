@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Snake Grid Designer v2</title>
+  <style>
+    :root {
+      --bg: #dcdcdc;
+      --panel: #f7f7f7;
+      --ink: #000000;
+      --muted: #666666;
+      --border: #cfcfcf;
+      --accent: #111111;
+      --danger: #b00020;
+      --ok: #0f7a2f;
+      --warn: #8a5a00;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    .app {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 24px;
+      min-height: 100vh;
+    }
+
+    .panel, .board-wrap {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    .panel {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      position: sticky;
+      top: 24px;
+      height: fit-content;
+    }
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .section h1, .section h2 {
+      margin: 0;
+    }
+
+    .section h1 { font-size: 1.35rem; }
+    .section h2 { font-size: 1rem; }
+
+    .grid2, .grid3 {
+      display: grid;
+      gap: 10px;
+    }
+
+    .grid2 { grid-template-columns: 1fr 1fr; }
+    .grid3 { grid-template-columns: 1fr 1fr 1fr; }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.92rem;
+    }
+
+    input, select, button, textarea {
+      font: inherit;
+    }
+
+    input[type="number"], input[type="text"], textarea, select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: white;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.85rem;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--ink);
+      border-radius: 16px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: transform 0.08s ease, background 0.15s ease;
+    }
+
+    button:hover { background: #fafafa; }
+    button:active { transform: translateY(1px); }
+    button.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    .status {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: white;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 0.95rem;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .pill {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #efefef;
+      font-size: 0.88rem;
+    }
+
+    .pill.good { background: #e7f6eb; color: var(--ok); }
+    .pill.bad { background: #fdecef; color: var(--danger); }
+    .pill.warn { background: #fff3db; color: var(--warn); }
+
+    .help {
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .board-wrap {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toolbar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .swatch {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: #000;
+      display: inline-block;
+    }
+
+    #board {
+      width: min(920px, 100%);
+      aspect-ratio: 1 / 1;
+      background: var(--bg);
+      border-radius: 18px;
+      display: block;
+      touch-action: none;
+    }
+
+    .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.85rem;
+      color: var(--muted);
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 1040px) {
+      .app { grid-template-columns: 1fr; }
+      .panel { position: static; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="panel">
+      <div class="section">
+        <h1>Snake Grid Designer v2</h1>
+        <div class="help">
+          Draw two snakes, autofill from a partial state, validate endpoint rules, and import or export board state as text. Autofill completes the board with two distinct snakes that cover every cell and never have any endpoint adjacent to any other endpoint, including their own other end.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Grid</h2>
+        <div class="grid2">
+          <label>
+            Columns
+            <input id="colsInput" type="number" min="2" max="12" value="5" />
+          </label>
+          <label>
+            Rows
+            <input id="rowsInput" type="number" min="2" max="12" value="5" />
+          </label>
+        </div>
+        <button id="applyGridBtn">Apply new grid</button>
+      </div>
+
+      <div class="section">
+        <h2>Length rules</h2>
+        <div class="grid3">
+          <label>
+            Snake 1 target
+            <input id="target1Input" type="number" min="1" max="999" value="13" />
+          </label>
+          <label>
+            Snake 2 target
+            <input id="target2Input" type="number" min="1" max="999" value="12" />
+          </label>
+          <label>
+            Max snake length
+            <input id="maxLenInput" type="number" min="1" max="999" value="13" />
+          </label>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Drawing</h2>
+        <div class="actions">
+          <button id="snake1Btn" class="active">Edit snake 1</button>
+          <button id="snake2Btn">Edit snake 2</button>
+          <button id="undoBtn">Undo</button>
+          <button id="popBtn">Trim tail</button>
+          <button id="clearActiveBtn">Clear active snake</button>
+          <button id="clearAllBtn">Clear both</button>
+          <button id="reverseBtn" class="full">Reverse active snake</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Autofill</h2>
+        <div class="actions">
+          <button id="autofillBtn" class="full">Autofill from current state</button>
+          <button id="stopBtn">Stop solver</button>
+          <button id="randomSeedBtn">Randomise seed</button>
+        </div>
+        <div class="help">
+          The solver respects your existing placed cells. Each partial snake must already be a simple path. Autofill uses backtracking and may take a while on larger or awkward setups.
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Import / export state</h2>
+        <textarea id="stateText" placeholder="Board state JSON appears here"></textarea>
+        <div class="actions">
+          <button id="exportStateBtn">Export state text</button>
+          <button id="importStateBtn">Import state text</button>
+          <button id="exportBtn" class="full">Export PNG</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Status</h2>
+        <div class="status" id="statusBox"></div>
+        <div class="mono" id="messageBox"></div>
+      </div>
+
+      <div class="section">
+        <h2>Notes</h2>
+        <div class="help">
+          Click an empty cell to start or extend the active snake. A new cell must touch that snake’s head or tail. Clicking the active snake’s head or tail removes that endpoint. Import and export use JSON so you can save or share an exact board state.
+        </div>
+      </div>
+    </aside>
+
+    <main class="board-wrap">
+      <div class="toolbar">
+        <div class="legend">
+          <span class="swatch"><span class="dot"></span> Snake 1</span>
+          <span class="swatch"><span class="dot"></span> Snake 2</span>
+          <span>Solver keeps endpoint pairs non-adjacent.</span>
+        </div>
+      </div>
+      <canvas id="board" width="1200" height="1200"></canvas>
+    </main>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('board');
+    const ctx = canvas.getContext('2d');
+
+    const colsInput = document.getElementById('colsInput');
+    const rowsInput = document.getElementById('rowsInput');
+    const target1Input = document.getElementById('target1Input');
+    const target2Input = document.getElementById('target2Input');
+    const maxLenInput = document.getElementById('maxLenInput');
+    const applyGridBtn = document.getElementById('applyGridBtn');
+    const snake1Btn = document.getElementById('snake1Btn');
+    const snake2Btn = document.getElementById('snake2Btn');
+    const undoBtn = document.getElementById('undoBtn');
+    const popBtn = document.getElementById('popBtn');
+    const clearActiveBtn = document.getElementById('clearActiveBtn');
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    const reverseBtn = document.getElementById('reverseBtn');
+    const autofillBtn = document.getElementById('autofillBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const randomSeedBtn = document.getElementById('randomSeedBtn');
+    const exportStateBtn = document.getElementById('exportStateBtn');
+    const importStateBtn = document.getElementById('importStateBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const stateText = document.getElementById('stateText');
+    const statusBox = document.getElementById('statusBox');
+    const messageBox = document.getElementById('messageBox');
+
+    const state = {
+      cols: 5,
+      rows: 5,
+      snake1: [],
+      snake2: [],
+      activeSnake: 1,
+      maxLen: 13,
+      target1: 13,
+      target2: 12,
+      seed: Math.floor(Math.random() * 1_000_000),
+      message: 'Ready.',
+      solverRunning: false,
+      solverCancelled: false,
+      solverStats: { nodes: 0, startedAt: null }
+    };
+
+    function cellKey(c) { return `${c.x},${c.y}`; }
+    function sameCell(a, b) { return a && b && a.x === b.x && a.y === b.y; }
+    function manhattan(a, b) { return Math.abs(a.x - b.x) + Math.abs(a.y - b.y); }
+    function adjacent(a, b) { return manhattan(a, b) === 1; }
+    function parsePositiveInt(value, fallback) {
+      const n = parseInt(value, 10);
+      return Number.isFinite(n) && n > 0 ? n : fallback;
+    }
+
+    function syncInputsToState() {
+      state.cols = Math.max(2, Math.min(12, parsePositiveInt(colsInput.value, state.cols)));
+      state.rows = Math.max(2, Math.min(12, parsePositiveInt(rowsInput.value, state.rows)));
+      state.target1 = parsePositiveInt(target1Input.value, state.target1);
+      state.target2 = parsePositiveInt(target2Input.value, state.target2);
+      state.maxLen = parsePositiveInt(maxLenInput.value, state.maxLen);
+      colsInput.value = state.cols;
+      rowsInput.value = state.rows;
+      target1Input.value = state.target1;
+      target2Input.value = state.target2;
+      maxLenInput.value = state.maxLen;
+    }
+
+    function getCellSize() {
+      return Math.min(canvas.width / state.cols, canvas.height / state.rows);
+    }
+
+    function getBoardRect() {
+      const cell = getCellSize();
+      const boardW = cell * state.cols;
+      const boardH = cell * state.rows;
+      const ox = (canvas.width - boardW) / 2;
+      const oy = (canvas.height - boardH) / 2;
+      return { cell, ox, oy, boardW, boardH };
+    }
+
+    function cellCenter(cell) {
+      const { cell: size, ox, oy } = getBoardRect();
+      return { x: ox + (cell.x + 0.5) * size, y: oy + (cell.y + 0.5) * size };
+    }
+
+    function getSnake(which) { return which === 1 ? state.snake1 : state.snake2; }
+    function setSnake(which, next) { if (which === 1) state.snake1 = next; else state.snake2 = next; }
+    function setMessage(msg) { state.message = msg; messageBox.textContent = msg; }
+
+    function allCells() {
+      const out = [];
+      for (let y = 0; y < state.rows; y++) {
+        for (let x = 0; x < state.cols; x++) out.push({ x, y });
+      }
+      return out;
+    }
+
+    function neighbours(cell) {
+      const out = [];
+      if (cell.x > 0) out.push({ x: cell.x - 1, y: cell.y });
+      if (cell.x < state.cols - 1) out.push({ x: cell.x + 1, y: cell.y });
+      if (cell.y > 0) out.push({ x: cell.x, y: cell.y - 1 });
+      if (cell.y < state.rows - 1) out.push({ x: cell.x, y: cell.y + 1 });
+      return out;
+    }
+
+    function occupiedMap(s1 = state.snake1, s2 = state.snake2) {
+      const map = new Map();
+      s1.forEach(c => map.set(cellKey(c), 1));
+      s2.forEach(c => map.set(cellKey(c), 2));
+      return map;
+    }
+
+    function updateActiveButtons() {
+      snake1Btn.classList.toggle('active', state.activeSnake === 1);
+      snake2Btn.classList.toggle('active', state.activeSnake === 2);
+    }
+
+    function canvasCellFromPointer(evt) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const px = (evt.clientX - rect.left) * scaleX;
+      const py = (evt.clientY - rect.top) * scaleY;
+      const { cell, ox, oy, boardW, boardH } = getBoardRect();
+      if (px < ox || px >= ox + boardW || py < oy || py >= oy + boardH) return null;
+      const x = Math.floor((px - ox) / cell);
+      const y = Math.floor((py - oy) / cell);
+      if (x < 0 || y < 0 || x >= state.cols || y >= state.rows) return null;
+      return { x, y };
+    }
+
+    function pathEndpoints(path) {
+      if (path.length === 0) return [];
+      if (path.length === 1) return [path[0]];
+      return [path[0], path[path.length - 1]];
+    }
+
+    function pathDegreeMap(path) {
+      const map = new Map(path.map(c => [cellKey(c), 0]));
+      for (let i = 0; i < path.length - 1; i++) {
+        const a = path[i], b = path[i + 1];
+        if (!adjacent(a, b)) return null;
+        map.set(cellKey(a), map.get(cellKey(a)) + 1);
+        map.set(cellKey(b), map.get(cellKey(b)) + 1);
+      }
+      return map;
+    }
+
+    function isSimplePath(path) {
+      const seen = new Set();
+      for (const c of path) {
+        const k = cellKey(c);
+        if (seen.has(k)) return false;
+        seen.add(k);
+      }
+      if (path.length <= 1) return true;
+      const degrees = pathDegreeMap(path);
+      if (!degrees) return false;
+      let ones = 0;
+      for (const d of degrees.values()) {
+        if (d === 1) ones++;
+        else if (d !== 2) return false;
+      }
+      return ones === 2;
+    }
+
+    function endpointRuleOk(path1 = state.snake1, path2 = state.snake2) {
+      const e1 = pathEndpoints(path1);
+      const e2 = pathEndpoints(path2);
+      for (let i = 0; i < e1.length; i++) {
+        for (let j = i + 1; j < e1.length; j++) {
+          if (adjacent(e1[i], e1[j])) return false;
+        }
+      }
+      for (let i = 0; i < e2.length; i++) {
+        for (let j = i + 1; j < e2.length; j++) {
+          if (adjacent(e2[i], e2[j])) return false;
+        }
+      }
+      for (const a of e1) {
+        for (const b of e2) {
+          if (adjacent(a, b)) return false;
+        }
+      }
+      return true;
+    }
+
+    function currentBoardValid() {
+      const map = occupiedMap();
+      if (map.size !== state.snake1.length + state.snake2.length) return false;
+      if (!isSimplePath(state.snake1) || !isSimplePath(state.snake2)) return false;
+      return true;
+    }
+
+    function isValidExtension(path, cell) {
+      if (path.length === 0) return true;
+      if (path.length === 1) return adjacent(path[0], cell);
+      return adjacent(path[0], cell) || adjacent(path[path.length - 1], cell);
+    }
+
+    function addCellToSnake(which, cell) {
+      if (state.solverRunning) {
+        setMessage('Stop the solver before editing.');
+        refresh();
+        return;
+      }
+      const snake = getSnake(which).slice();
+      const occupied = occupiedMap();
+      const key = cellKey(cell);
+
+      if (occupied.has(key)) {
+        const owner = occupied.get(key);
+        if (owner !== which) {
+          setMessage('That cell is already part of the other snake.');
+          return;
+        }
+        if (snake.length === 0) return;
+        if (sameCell(cell, snake[0])) {
+          snake.shift();
+          setSnake(which, snake);
+          setMessage('Removed active snake head.');
+          refresh();
+          return;
+        }
+        if (sameCell(cell, snake[snake.length - 1])) {
+          snake.pop();
+          setSnake(which, snake);
+          setMessage('Removed active snake tail.');
+          refresh();
+          return;
+        }
+        setMessage('You can only remove an endpoint by clicking the head or tail.');
+        return;
+      }
+
+      if (!isValidExtension(snake, cell)) {
+        setMessage('New cells must touch the active snake head or tail.');
+        return;
+      }
+
+      if (snake.length === 0) snake.push(cell);
+      else if (snake.length === 1) snake.push(cell);
+      else if (adjacent(snake[0], cell)) snake.unshift(cell);
+      else snake.push(cell);
+
+      setSnake(which, snake);
+      setMessage(`Added cell to snake ${which}.`);
+      refresh();
+    }
+
+    function undoActive() {
+      if (state.solverRunning) return;
+      const which = state.activeSnake;
+      const snake = getSnake(which).slice();
+      if (!snake.length) { setMessage('Nothing to undo on the active snake.'); return refresh(); }
+      snake.pop();
+      setSnake(which, snake);
+      setMessage('Removed the active snake tail.');
+      refresh();
+    }
+
+    function trimActiveEndpoint() {
+      if (state.solverRunning) return;
+      const which = state.activeSnake;
+      const snake = getSnake(which).slice();
+      if (!snake.length) { setMessage('The active snake is already empty.'); return refresh(); }
+      snake.pop();
+      setSnake(which, snake);
+      setMessage('Trimmed one endpoint from the active snake.');
+      refresh();
+    }
+
+    function reverseActive() {
+      if (state.solverRunning) return;
+      const which = state.activeSnake;
+      setSnake(which, getSnake(which).slice().reverse());
+      setMessage('Reversed the active snake.');
+      refresh();
+    }
+
+    function clearActive() {
+      if (state.solverRunning) return;
+      setSnake(state.activeSnake, []);
+      setMessage(`Cleared snake ${state.activeSnake}.`);
+      refresh();
+    }
+
+    function clearAll() {
+      if (state.solverRunning) return;
+      state.snake1 = [];
+      state.snake2 = [];
+      setMessage('Cleared both snakes.');
+      refresh();
+    }
+
+    function applyGrid() {
+      if (state.solverRunning) return;
+      syncInputsToState();
+      state.snake1 = [];
+      state.snake2 = [];
+      setMessage(`Applied ${state.cols}×${state.rows} grid and cleared both snakes.`);
+      refresh();
+    }
+
+    function drawSnakePath(path) {
+      if (!path.length) return;
+      const pts = path.map(cellCenter);
+      const { cell } = getBoardRect();
+      const width = Math.max(8, Math.min(40, cell * 0.28));
+      ctx.save();
+      ctx.strokeStyle = '#000';
+      ctx.lineWidth = width;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      ctx.stroke();
+      const r = width / 2;
+      for (const p of [pts[0], pts[pts.length - 1]]) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = '#000';
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+
+    function drawBoard() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#dcdcdc';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const { cell, ox, oy, boardW, boardH } = getBoardRect();
+      ctx.save();
+      ctx.strokeStyle = '#111';
+      ctx.lineWidth = Math.max(1.5, cell * 0.01);
+      for (let x = 0; x <= state.cols; x++) {
+        const px = ox + x * cell;
+        ctx.beginPath();
+        ctx.moveTo(px, oy);
+        ctx.lineTo(px, oy + boardH);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= state.rows; y++) {
+        const py = oy + y * cell;
+        ctx.beginPath();
+        ctx.moveTo(ox, py);
+        ctx.lineTo(ox + boardW, py);
+        ctx.stroke();
+      }
+      ctx.restore();
+      drawSnakePath(state.snake1);
+      drawSnakePath(state.snake2);
+    }
+
+    function totalCells() { return state.cols * state.rows; }
+
+    function snakeStats(which) {
+      const snake = getSnake(which);
+      return {
+        len: snake.length,
+        overMax: snake.length > state.maxLen,
+        onTarget: snake.length === (which === 1 ? state.target1 : state.target2)
+      };
+    }
+
+    function renderStatus() {
+      syncInputsToState();
+      const s1 = snakeStats(1);
+      const s2 = snakeStats(2);
+      const used = state.snake1.length + state.snake2.length;
+      const filled = used === totalCells();
+      const validPaths = currentBoardValid();
+      const endpointsOk = endpointRuleOk();
+      const targetSumOk = state.target1 + state.target2 === totalCells();
+      const solverText = state.solverRunning
+        ? `Running, explored ${state.solverStats.nodes.toLocaleString()} search nodes`
+        : 'Idle';
+
+      statusBox.innerHTML = `
+        <div><strong>Grid:</strong> ${state.cols}×${state.rows} (${totalCells()} cells)</div>
+        <div><strong>Snake 1:</strong> ${s1.len}/${state.target1}</div>
+        <div><strong>Snake 2:</strong> ${s2.len}/${state.target2}</div>
+        <div><strong>Occupied:</strong> ${used}/${totalCells()}</div>
+        <div><strong>Solver:</strong> ${solverText}</div>
+        <div class="pill-row">
+          <span class="pill ${s1.overMax ? 'bad' : 'good'}">Snake 1 ${s1.overMax ? 'too long' : 'within max'}</span>
+          <span class="pill ${s2.overMax ? 'bad' : 'good'}">Snake 2 ${s2.overMax ? 'too long' : 'within max'}</span>
+          <span class="pill ${filled ? 'good' : 'warn'}">${filled ? 'Board full' : 'Board not full'}</span>
+          <span class="pill ${validPaths ? 'good' : 'bad'}">${validPaths ? 'Paths valid' : 'Paths invalid'}</span>
+          <span class="pill ${endpointsOk ? 'good' : 'bad'}">${endpointsOk ? 'Endpoint rule ok' : 'Endpoint clash'}</span>
+          <span class="pill ${targetSumOk ? 'good' : 'bad'}">${targetSumOk ? 'Targets fill board' : 'Target sum mismatch'}</span>
+        </div>
+      `;
+    }
+
+    function refresh() {
+      updateActiveButtons();
+      drawBoard();
+      renderStatus();
+      messageBox.textContent = state.message;
+    }
+
+    function exportStateText() {
+      syncInputsToState();
+      const payload = {
+        cols: state.cols,
+        rows: state.rows,
+        target1: state.target1,
+        target2: state.target2,
+        maxLen: state.maxLen,
+        seed: state.seed,
+        snake1: state.snake1,
+        snake2: state.snake2
+      };
+      stateText.value = JSON.stringify(payload, null, 2);
+      setMessage('Exported board state as text.');
+      refresh();
+    }
+
+    function importStateText() {
+      if (state.solverRunning) return;
+      try {
+        const payload = JSON.parse(stateText.value);
+        const cols = Math.max(2, Math.min(12, parsePositiveInt(payload.cols, 5)));
+        const rows = Math.max(2, Math.min(12, parsePositiveInt(payload.rows, 5)));
+        const normalise = (arr) => Array.isArray(arr)
+          ? arr.map(c => ({ x: parseInt(c.x, 10), y: parseInt(c.y, 10) }))
+              .filter(c => Number.isFinite(c.x) && Number.isFinite(c.y) && c.x >= 0 && c.y >= 0 && c.x < cols && c.y < rows)
+          : [];
+
+        state.cols = cols;
+        state.rows = rows;
+        state.target1 = parsePositiveInt(payload.target1, cols * rows);
+        state.target2 = parsePositiveInt(payload.target2, 0);
+        state.maxLen = parsePositiveInt(payload.maxLen, Math.max(state.target1, state.target2));
+        state.seed = parsePositiveInt(payload.seed, Math.floor(Math.random() * 1_000_000));
+        state.snake1 = normalise(payload.snake1);
+        state.snake2 = normalise(payload.snake2);
+
+        colsInput.value = state.cols;
+        rowsInput.value = state.rows;
+        target1Input.value = state.target1;
+        target2Input.value = state.target2;
+        maxLenInput.value = state.maxLen;
+
+        setMessage('Imported board state.');
+        refresh();
+      } catch (err) {
+        setMessage(`Import failed: ${err.message}`);
+        refresh();
+      }
+    }
+
+    function exportPNG() {
+      const exportCanvas = document.createElement('canvas');
+      exportCanvas.width = 1200;
+      exportCanvas.height = 1200;
+      const exportCtx = exportCanvas.getContext('2d');
+      exportCtx.fillStyle = '#dcdcdc';
+      exportCtx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+
+      const cell = Math.min(exportCanvas.width / state.cols, exportCanvas.height / state.rows);
+      const boardW = cell * state.cols;
+      const boardH = cell * state.rows;
+      const ox = (exportCanvas.width - boardW) / 2;
+      const oy = (exportCanvas.height - boardH) / 2;
+
+      exportCtx.strokeStyle = '#111';
+      exportCtx.lineWidth = Math.max(1.5, cell * 0.01);
+      for (let x = 0; x <= state.cols; x++) {
+        const px = ox + x * cell;
+        exportCtx.beginPath();
+        exportCtx.moveTo(px, oy);
+        exportCtx.lineTo(px, oy + boardH);
+        exportCtx.stroke();
+      }
+      for (let y = 0; y <= state.rows; y++) {
+        const py = oy + y * cell;
+        exportCtx.beginPath();
+        exportCtx.moveTo(ox, py);
+        exportCtx.lineTo(ox + boardW, py);
+        exportCtx.stroke();
+      }
+
+      function localCenter(c) { return { x: ox + (c.x + 0.5) * cell, y: oy + (c.y + 0.5) * cell }; }
+      function localDrawSnake(path) {
+        if (!path.length) return;
+        const pts = path.map(localCenter);
+        const width = Math.max(8, Math.min(40, cell * 0.28));
+        exportCtx.strokeStyle = '#000';
+        exportCtx.lineWidth = width;
+        exportCtx.lineJoin = 'round';
+        exportCtx.lineCap = 'round';
+        exportCtx.beginPath();
+        exportCtx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) exportCtx.lineTo(pts[i].x, pts[i].y);
+        exportCtx.stroke();
+        const r = width / 2;
+        for (const p of [pts[0], pts[pts.length - 1]]) {
+          exportCtx.beginPath();
+          exportCtx.arc(p.x, p.y, r, 0, Math.PI * 2);
+          exportCtx.fillStyle = '#000';
+          exportCtx.fill();
+        }
+      }
+
+      localDrawSnake(state.snake1);
+      localDrawSnake(state.snake2);
+
+      const url = exportCanvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `snake_grid_${state.cols}x${state.rows}.png`;
+      a.click();
+      setMessage('Exported PNG.');
+      refresh();
+    }
+
+    function connectedComponents(cellsSet) {
+      const unvisited = new Set(cellsSet);
+      const comps = [];
+      while (unvisited.size) {
+        const first = [...unvisited][0];
+        const q = [first];
+        const seen = new Set([first]);
+        unvisited.delete(first);
+        while (q.length) {
+          const currentKey = q.shift();
+          const [x, y] = currentKey.split(',').map(Number);
+          const c = { x, y };
+          for (const n of neighbours(c)) {
+            const nk = cellKey(n);
+            if (unvisited.has(nk)) {
+              unvisited.delete(nk);
+              seen.add(nk);
+              q.push(nk);
+            }
+          }
+        }
+        comps.push(seen);
+      }
+      return comps;
+    }
+
+    function pathEndpointsForSearch(path) {
+      if (path.length === 0) return [];
+      if (path.length === 1) return [{ whichEnd: 0, cell: path[0] }, { whichEnd: 1, cell: path[0] }];
+      return [{ whichEnd: 0, cell: path[0] }, { whichEnd: 1, cell: path[path.length - 1] }];
+    }
+
+    function candidateExtensions(path, blockedSet) {
+      const opts = [];
+      const seen = new Set();
+      for (const { whichEnd, cell } of pathEndpointsForSearch(path)) {
+        for (const n of neighbours(cell)) {
+          const nk = cellKey(n);
+          if (blockedSet.has(nk)) continue;
+          const key = `${whichEnd}|${nk}`;
+          if (!seen.has(key)) {
+            seen.add(key);
+            opts.push({ whichEnd, cell: n });
+          }
+        }
+      }
+      return opts;
+    }
+
+    function extendPath(path, whichEnd, cell) {
+      if (path.length === 0) return [cell];
+      if (path.length === 1) {
+        return whichEnd === 0 ? [cell, path[0]] : [path[0], cell];
+      }
+      return whichEnd === 0 ? [cell, ...path] : [...path, cell];
+    }
+
+    function localMoveScore(candidatePath, otherPath) {
+      const otherSet = new Set(otherPath.map(cellKey));
+      const otherEnds = pathEndpoints(otherPath);
+      const candidateEnds = pathEndpoints(candidatePath);
+      let score = 0;
+      for (const c of candidatePath) {
+        for (const n of neighbours(c)) {
+          if (otherSet.has(cellKey(n))) {
+            score += 3;
+            if (candidateEnds.some(e => sameCell(e, c)) && otherEnds.some(e => sameCell(e, n))) score -= 100;
+          }
+        }
+      }
+      return score;
+    }
+
+    function endpointRuleOkFor(path1, path2) {
+      return endpointRuleOk(path1, path2);
+    }
+
+    function feasible(path1, path2, target1, target2) {
+      if (!isSimplePath(path1) || !isSimplePath(path2)) return false;
+      const occupied = occupiedMap(path1, path2);
+      if (occupied.size !== path1.length + path2.length) return false;
+      if (path1.length > target1 || path2.length > target2) return false;
+      const remaining1 = target1 - path1.length;
+      const remaining2 = target2 - path2.length;
+      const totalRemaining = remaining1 + remaining2;
+      const all = allCells();
+      const unusedKeys = new Set(all.map(cellKey).filter(k => !occupied.has(k)));
+      if (unusedKeys.size !== totalRemaining) return false;
+
+      const comps = connectedComponents(unusedKeys);
+      if (comps.length > 2) return false;
+
+      for (const comp of comps) {
+        let reachable = false;
+        if (remaining1 > 0) {
+          for (const e of pathEndpoints(path1)) {
+            if ([...comp].some(k => adjacent(e, keyToCell(k)))) { reachable = true; break; }
+          }
+        }
+        if (!reachable && remaining2 > 0) {
+          for (const e of pathEndpoints(path2)) {
+            if ([...comp].some(k => adjacent(e, keyToCell(k)))) { reachable = true; break; }
+          }
+        }
+        if (!reachable) return false;
+      }
+
+      if (path1.length === target1 && path2.length === target2) {
+        if (!endpointRuleOkFor(path1, path2)) return false;
+      }
+      return true;
+    }
+
+    function keyToCell(k) {
+      const [x, y] = k.split(',').map(Number);
+      return { x, y };
+    }
+
+    async function solveFromCurrentState() {
+      if (state.solverRunning) return;
+      syncInputsToState();
+
+      if (state.target1 + state.target2 !== totalCells()) {
+        setMessage('Target lengths must add up to the whole board.');
+        refresh();
+        return;
+      }
+      if (!currentBoardValid()) {
+        setMessage('Current snakes are not valid simple paths.');
+        refresh();
+        return;
+      }
+      if (state.snake1.length > state.target1 || state.snake2.length > state.target2) {
+        setMessage('A snake is already longer than its target.');
+        refresh();
+        return;
+      }
+
+      state.solverRunning = true;
+      state.solverCancelled = false;
+      state.solverStats = { nodes: 0, startedAt: performance.now() };
+      setMessage('Solver started.');
+      refresh();
+
+      const rng = mulberry32(state.seed || 1);
+      let bestMessageTick = 0;
+
+      async function search(path1, path2) {
+        if (state.solverCancelled) return null;
+        state.solverStats.nodes += 1;
+
+        if (state.solverStats.nodes % 1000 === 0) {
+          const elapsed = ((performance.now() - state.solverStats.startedAt) / 1000).toFixed(1);
+          setMessage(`Solver running... explored ${state.solverStats.nodes.toLocaleString()} nodes in ${elapsed}s`);
+          refresh();
+          await pause();
+        }
+
+        if (!feasible(path1, path2, state.target1, state.target2)) return null;
+
+        if (path1.length === state.target1 && path2.length === state.target2) {
+          return { path1, path2 };
+        }
+
+        const rem1 = state.target1 - path1.length;
+        const rem2 = state.target2 - path2.length;
+        let order;
+        if (rem1 > 0 && rem2 > 0) {
+          if (rem1 > rem2) order = [1, 2];
+          else if (rem2 > rem1) order = [2, 1];
+          else order = rng() < 0.5 ? [1, 2] : [2, 1];
+        } else if (rem1 > 0) order = [1];
+        else order = [2];
+
+        for (const which of order) {
+          const blocked = new Set([...path1, ...path2].map(cellKey));
+          const base = which === 1 ? path1 : path2;
+          const other = which === 1 ? path2 : path1;
+          let opts = candidateExtensions(base, blocked);
+          shuffleInPlace(opts, rng);
+          opts.sort((a, b) => {
+            const aPath = extendPath(base, a.whichEnd, a.cell);
+            const bPath = extendPath(base, b.whichEnd, b.cell);
+            return localMoveScore(bPath, other) - localMoveScore(aPath, other);
+          });
+
+          for (const opt of opts) {
+            const next = extendPath(base, opt.whichEnd, opt.cell);
+            const result = which === 1
+              ? await search(next, path2)
+              : await search(path1, next);
+            if (result) return result;
+          }
+        }
+        return null;
+      }
+
+      try {
+        const result = await search(state.snake1.slice(), state.snake2.slice());
+        if (state.solverCancelled) {
+          setMessage('Solver stopped.');
+        } else if (result) {
+          state.snake1 = result.path1;
+          state.snake2 = result.path2;
+          const elapsed = ((performance.now() - state.solverStats.startedAt) / 1000).toFixed(1);
+          setMessage(`Solved in ${elapsed}s after exploring ${state.solverStats.nodes.toLocaleString()} nodes.`);
+        } else {
+          setMessage(`No completion found after exploring ${state.solverStats.nodes.toLocaleString()} nodes.`);
+        }
+      } finally {
+        state.solverRunning = false;
+        refresh();
+      }
+    }
+
+    function pause() {
+      return new Promise(resolve => setTimeout(resolve, 0));
+    }
+
+    function mulberry32(a) {
+      return function() {
+        let t = a += 0x6D2B79F5;
+        t = Math.imul(t ^ t >>> 15, t | 1);
+        t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+        return ((t ^ t >>> 14) >>> 0) / 4294967296;
+      };
+    }
+
+    function shuffleInPlace(arr, rng) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(rng() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    canvas.addEventListener('click', (evt) => {
+      const cell = canvasCellFromPointer(evt);
+      if (!cell) {
+        setMessage('Clicked outside the grid.');
+        refresh();
+        return;
+      }
+      addCellToSnake(state.activeSnake, cell);
+    });
+
+    applyGridBtn.addEventListener('click', applyGrid);
+    snake1Btn.addEventListener('click', () => { state.activeSnake = 1; setMessage('Editing snake 1.'); refresh(); });
+    snake2Btn.addEventListener('click', () => { state.activeSnake = 2; setMessage('Editing snake 2.'); refresh(); });
+    undoBtn.addEventListener('click', undoActive);
+    popBtn.addEventListener('click', trimActiveEndpoint);
+    clearActiveBtn.addEventListener('click', clearActive);
+    clearAllBtn.addEventListener('click', clearAll);
+    reverseBtn.addEventListener('click', reverseActive);
+    autofillBtn.addEventListener('click', solveFromCurrentState);
+    stopBtn.addEventListener('click', () => {
+      state.solverCancelled = true;
+      setMessage('Stopping solver...');
+      refresh();
+    });
+    randomSeedBtn.addEventListener('click', () => {
+      state.seed = Math.floor(Math.random() * 1_000_000);
+      setMessage(`Seed set to ${state.seed}.`);
+      refresh();
+    });
+    exportStateBtn.addEventListener('click', exportStateText);
+    importStateBtn.addEventListener('click', importStateText);
+    exportBtn.addEventListener('click', exportPNG);
+    maxLenInput.addEventListener('input', refresh);
+    target1Input.addEventListener('input', refresh);
+    target2Input.addEventListener('input', refresh);
+
+    refresh();
+  </script>
+</body>
+</html>
