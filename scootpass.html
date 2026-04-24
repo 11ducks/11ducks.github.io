@@ -150,6 +150,17 @@
       display: none;
     }
 
+    .field[hidden] {
+      display: none;
+    }
+
+    .graph-note {
+      margin: -4px 0 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
     .presets {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -644,11 +655,79 @@
           </div>
 
           <div class="field">
+            <div class="hint" style="margin-bottom: 10px; display:block;">Quick presets</div>
+            <div class="presets">
+              <button class="preset" data-minutes="22" data-trips="2" data-days="5">
+                <strong>Daily commuter</strong>
+                <span>22 min · 2 trips · 5 days/week</span>
+              </button>
+              <button class="preset" data-minutes="11" data-trips="1" data-days="1">
+                <strong>Occasional</strong>
+                <span>11 min · 1 trip · 1 day/week</span>
+              </button>
+              <button class="preset" data-minutes="25" data-trips="2" data-days="1">
+                <strong>One-day return trip</strong>
+                <span>25 min · 2 trips · 1 day/week</span>
+              </button>
+              <button class="preset" data-minutes="7" data-trips="4" data-days="7">
+                <strong>Dense day usage</strong>
+                <span>7 min · 4 trips · 7 days/week</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="graphMode">
+              <span>Graph view</span>
+              <span class="hint">Break-even axis</span>
+            </label>
+            <select id="graphMode" aria-label="Graph view">
+              <option value="journey">Journey length: pass overtakes</option>
+              <option value="frequency">Usage frequency: monthly cost</option>
+            </select>
+          </div>
+
+          <div class="field" id="graphMaxField">
             <label for="graphMax">
               <span>Graph up to ride length</span>
               <span class="hint" id="graphMaxValue"></span>
             </label>
             <input id="graphMax" type="range" min="20" max="60" step="5" value="35" />
+          </div>
+
+          <div class="field conditional-field" id="frequencyMaxField" hidden>
+            <label for="frequencyMaxRides">
+              <span>Graph up to monthly trips</span>
+              <span class="hint">1 to 240 trips</span>
+            </label>
+            <input id="frequencyMaxRides" type="number" min="10" max="240" step="5" value="45" />
+          </div>
+
+          <div class="field">
+            <div class="checkbox-row">
+              <label for="includeBikeComparison">
+                <span>Compare buying a bike</span>
+              </label>
+              <input id="includeBikeComparison" type="checkbox" />
+            </div>
+          </div>
+
+          <div class="field conditional-field" id="bikeComparisonFields" hidden>
+            <label for="bikePurchasePrice">
+              <span>New bike purchase price (£)</span>
+              <span class="hint">Amortised over lifespan</span>
+            </label>
+            <input id="bikePurchasePrice" type="number" min="0" step="10" inputmode="decimal" value="500" />
+            <label for="bikeLifespanMonths" style="margin-top:12px;">
+              <span>Bike lifespan / ownership period</span>
+              <span class="hint">Months</span>
+            </label>
+            <input id="bikeLifespanMonths" type="number" min="1" step="1" inputmode="numeric" value="36" />
+            <label for="bikeMaintenanceMonthly" style="margin-top:12px;">
+              <span>Maintenance / storage per month (£)</span>
+              <span class="hint">Optional</span>
+            </label>
+            <input id="bikeMaintenanceMonthly" type="number" min="0" step="1" inputmode="decimal" value="10" />
           </div>
 
           <div class="field">
@@ -683,36 +762,6 @@
               <span class="hint">Per ride / single journey</span>
             </label>
             <input id="tubeFare" type="number" min="0" step="0.10" inputmode="decimal" value="3.00" />
-          </div>
-
-          <div class="field">
-            <div class="hint" style="margin-bottom: 10px; display:block;">Quick presets</div>
-            <div class="presets">
-              <button class="preset" data-minutes="22" data-trips="2" data-days="5">
-                <strong>Daily commuter</strong>
-                <span>22 min · 2 trips · 5 days/week</span>
-              </button>
-              <button class="preset" data-minutes="9" data-trips="1" data-days="1">
-                <strong>Occasional</strong>
-                <span>9 min · 1 trip · 1 day/week</span>
-              </button>
-              <button class="preset" data-minutes="15" data-trips="2" data-days="1">
-                <strong>One-day return trip</strong>
-                <span>15 min · 2 trips · 1 day/week</span>
-              </button>
-              <button class="preset" data-minutes="7" data-trips="4" data-days="2">
-                <strong>Dense day usage</strong>
-                <span>7 min · 4 trips · 2 days/week</span>
-              </button>
-              <button class="preset" data-minutes="6" data-trips="4" data-days="4">
-                <strong>High weekly minutes</strong>
-                <span>6 min · 4 trips · 4 days/week</span>
-              </button>
-              <button class="preset" data-minutes="15" data-trips="3" data-days="7">
-                <strong>Heavy everyday rider</strong>
-                <span>15 min · 3 trips · 7 days/week</span>
-              </button>
-            </div>
           </div>
 
           <div class="field">
@@ -774,7 +823,8 @@
 
         <section class="card" style="margin-bottom:22px;">
           <div class="card-inner">
-            <h2 class="section-title">Where each pass overtakes the others</h2>
+            <h2 class="section-title" id="chartTitle">Where each pass overtakes the others</h2>
+            <p class="graph-note" id="chartNote">Monthly cost is plotted as average ride length changes.</p>
             <div class="chart-shell">
               <div class="legend" id="legend"></div>
               <div class="svg-wrap">
@@ -1092,7 +1142,8 @@
       unlocks: '#0891b2',
       subscription: '#0f766e',
       bus: '#b45309',
-      tube: '#be123c'
+      tube: '#be123c',
+      bike: '#16a34a'
     };
 
     const compactNumber = new Intl.NumberFormat('en-GB', {
@@ -1107,7 +1158,13 @@
       rideVariance: document.getElementById('rideVariance'),
       tripsPerDay: document.getElementById('tripsPerDay'),
       daysPerWeek: document.getElementById('daysPerWeek'),
+      graphMode: document.getElementById('graphMode'),
       graphMax: document.getElementById('graphMax'),
+      frequencyMaxRides: document.getElementById('frequencyMaxRides'),
+      includeBikeComparison: document.getElementById('includeBikeComparison'),
+      bikePurchasePrice: document.getElementById('bikePurchasePrice'),
+      bikeLifespanMonths: document.getElementById('bikeLifespanMonths'),
+      bikeMaintenanceMonthly: document.getElementById('bikeMaintenanceMonthly'),
       includeBusComparison: document.getElementById('includeBusComparison'),
       busFare: document.getElementById('busFare'),
       includeTubeComparison: document.getElementById('includeTubeComparison'),
@@ -1115,6 +1172,11 @@
     };
 
     const graphMaxValue = document.getElementById('graphMaxValue');
+    const chartTitle = document.getElementById('chartTitle');
+    const chartNote = document.getElementById('chartNote');
+    const graphMaxField = document.getElementById('graphMaxField');
+    const frequencyMaxField = document.getElementById('frequencyMaxField');
+    const bikeComparisonFields = document.getElementById('bikeComparisonFields');
     const bestName = document.getElementById('bestName');
     const bestSummary = document.getElementById('bestSummary');
     const bestMonthly = document.getElementById('bestMonthly');
@@ -1209,8 +1271,15 @@
     }
 
     function toNum(el, fallback) {
-      const value = Number(el.value);
+      if (!el) return fallback;
+      const raw = String(el.value ?? '').trim();
+      if (raw === '' || raw === '-' || raw === '.' || raw === '-.') return fallback;
+      const value = Number(raw);
       return Number.isFinite(value) ? value : fallback;
+    }
+
+    function isActivelyEditing(el) {
+      return el && document.activeElement === el;
     }
 
     function getConfig() {
@@ -1254,6 +1323,9 @@
     }
 
     function getComparisonSettings() {
+      const bikePrice = Math.max(0, toNum(inputs.bikePurchasePrice, 500));
+      const bikeMonths = Math.max(1, toNum(inputs.bikeLifespanMonths, 36));
+      const bikeMaintenance = Math.max(0, toNum(inputs.bikeMaintenanceMonthly, 10));
       return {
         bus: {
           enabled: Boolean(inputs.includeBusComparison.checked),
@@ -1262,6 +1334,13 @@
         tube: {
           enabled: currentRegionDef().tubeEnabled && Boolean(inputs.includeTubeComparison.checked),
           fare: Math.max(0, toNum(inputs.tubeFare, currentRegionDef().defaultTubeFare))
+        },
+        bike: {
+          enabled: Boolean(inputs.includeBikeComparison.checked),
+          purchasePrice: bikePrice,
+          lifespanMonths: bikeMonths,
+          maintenanceMonthly: bikeMaintenance,
+          monthlyCost: (bikePrice / bikeMonths) + bikeMaintenance
         }
       };
     }
@@ -1271,6 +1350,9 @@
       tubeComparisonToggleField.hidden = !currentRegionDef().tubeEnabled;
       const showTubeFare = currentRegionDef().tubeEnabled && inputs.includeTubeComparison.checked;
       tubeFareField.hidden = !showTubeFare;
+      bikeComparisonFields.hidden = !inputs.includeBikeComparison.checked;
+      graphMaxField.hidden = inputs.graphMode.value !== 'journey';
+      frequencyMaxField.hidden = inputs.graphMode.value !== 'frequency';
     }
 
     function updateRegionVisibility() {
@@ -1426,7 +1508,13 @@
         rideVariance: clamp(toNum(inputs.rideVariance, 1), 0, 15),
         tripsPerDay: clamp(Math.round(toNum(inputs.tripsPerDay, 2)), 1, 12),
         daysPerWeek: clamp(Math.round(toNum(inputs.daysPerWeek, 5)), 1, 7),
+        graphMode: inputs.graphMode.value === 'frequency' ? 'frequency' : 'journey',
         graphMax: clamp(Math.round(toNum(inputs.graphMax, 35)), 20, 60),
+        frequencyMaxRides: clamp(Math.round(toNum(inputs.frequencyMaxRides, 120)), 10, 240),
+        includeBikeComparison: Boolean(inputs.includeBikeComparison.checked),
+        bikePurchasePrice: Math.max(0, toNum(inputs.bikePurchasePrice, 500)),
+        bikeLifespanMonths: Math.max(1, toNum(inputs.bikeLifespanMonths, 36)),
+        bikeMaintenanceMonthly: Math.max(0, toNum(inputs.bikeMaintenanceMonthly, 10)),
         includeBusComparison: Boolean(inputs.includeBusComparison.checked),
         busFare: Math.max(0, toNum(inputs.busFare, currentRegionDef().defaultBusFare)),
         includeTubeComparison: currentRegionDef().tubeEnabled && Boolean(inputs.includeTubeComparison.checked),
@@ -1465,7 +1553,13 @@
         rideVariance: state.rideVariance ?? 1,
         tripsPerDay: state.tripsPerDay ?? 2,
         daysPerWeek: state.daysPerWeek ?? 5,
+        graphMode: state.graphMode === 'frequency' ? 'frequency' : 'journey',
         graphMax: state.graphMax ?? 35,
+        frequencyMaxRides: state.frequencyMaxRides ?? 120,
+        includeBikeComparison: Boolean(state.includeBikeComparison),
+        bikePurchasePrice: state.bikePurchasePrice ?? 500,
+        bikeLifespanMonths: state.bikeLifespanMonths ?? 36,
+        bikeMaintenanceMonthly: state.bikeMaintenanceMonthly ?? 10,
         includeBusComparison: Boolean(state.includeBusComparison),
         busFare: state.busFare ?? regionDefaults.defaultBusFare,
         includeTubeComparison: regionDefaults.tubeEnabled ? Boolean(state.includeTubeComparison) : false,
@@ -1504,7 +1598,13 @@
       inputs.rideVariance.value = clamp(Number(safeState.rideVariance ?? 1), 0, 15);
       inputs.tripsPerDay.value = clamp(Math.round(Number(safeState.tripsPerDay)), 1, 12);
       inputs.daysPerWeek.value = clamp(Math.round(Number(safeState.daysPerWeek)), 1, 7);
+      inputs.graphMode.value = safeState.graphMode;
       inputs.graphMax.value = clamp(Math.round(Number(safeState.graphMax) / 5) * 5, 20, 60);
+      inputs.frequencyMaxRides.value = clamp(Math.round(Number(safeState.frequencyMaxRides)), 10, 240);
+      inputs.includeBikeComparison.checked = Boolean(safeState.includeBikeComparison);
+      inputs.bikePurchasePrice.value = Math.max(0, Number(safeState.bikePurchasePrice)).toFixed(0);
+      inputs.bikeLifespanMonths.value = Math.max(1, Number(safeState.bikeLifespanMonths)).toFixed(0);
+      inputs.bikeMaintenanceMonthly.value = Math.max(0, Number(safeState.bikeMaintenanceMonthly)).toFixed(0);
       inputs.includeBusComparison.checked = Boolean(safeState.includeBusComparison);
       inputs.busFare.value = Math.max(0, Number(safeState.busFare)).toFixed(2);
       inputs.includeTubeComparison.checked = Boolean(safeState.includeTubeComparison);
@@ -1936,6 +2036,14 @@
           model: `Assumes each journey uses one Tube fare at ${formatCurrency(comparisons.tube.fare)}.`
         });
       }
+      if (comparisons.bike.enabled) {
+        strategies.push({
+          id: 'bike',
+          name: 'Buy a bike',
+          cost: comparisons.bike.monthlyCost,
+          model: `Amortises ${formatCurrency(comparisons.bike.purchasePrice)} over ${compactNumber.format(comparisons.bike.lifespanMonths)} months + ${formatCurrency(comparisons.bike.maintenanceMonthly)} monthly upkeep.`
+        });
+      }
 
       return strategies;
     }
@@ -2092,21 +2200,143 @@
       `;
     }
 
+    function patternFromMonthlyRides(monthlyRidesTarget, preferredTripsPerDay, config) {
+      const target = Math.max(1, Number(monthlyRidesTarget) || 1);
+      const weeks = Math.max(0.1, config.weeksPerMonth);
+      const preferredDailyTrips = Math.max(1, Number(preferredTripsPerDay) || 1);
+      const maxRidingDaysPerMonth = 7 * weeks;
+      const ridingDaysPerMonth = Math.min(maxRidingDaysPerMonth, Math.max(1 / weeks, target / preferredDailyTrips));
+      const tripsPerDay = target / ridingDaysPerMonth;
+      const daysPerWeek = ridingDaysPerMonth / weeks;
+      return { tripsPerDay, daysPerWeek };
+    }
+
+    function buildFrequencyDominantList(rideMinutes, rideVariance, preferredTripsPerDay, maxRides, config, comparisons) {
+      const picks = [];
+      for (let rides = 1; rides <= maxRides; rides += 1) {
+        const pattern = patternFromMonthlyRides(rides, preferredTripsPerDay, config);
+        const sorted = [...buildStrategies(rideMinutes, rideVariance, pattern.tripsPerDay, pattern.daysPerWeek, config, comparisons)]
+          .sort((a, b) => a.cost - b.cost);
+        picks.push({ rides, name: sorted[0].name, id: sorted[0].id });
+      }
+
+      const ranges = [];
+      picks.forEach((entry) => {
+        const last = ranges[ranges.length - 1];
+        if (!last || last.name !== entry.name) {
+          ranges.push({ name: entry.name, id: entry.id, start: entry.rides, end: entry.rides });
+        } else {
+          last.end = entry.rides;
+        }
+      });
+
+      dominantList.innerHTML = '';
+      ranges.forEach((range) => {
+        const div = document.createElement('div');
+        div.className = 'dominant-item';
+        div.innerHTML = `
+          <div class="dominant-range">${range.start}–${range.end} trips/month</div>
+          <div class="dominant-name">${range.name}</div>
+        `;
+        dominantList.appendChild(div);
+      });
+    }
+
+    function buildFrequencyChart(rideMinutes, rideVariance, preferredTripsPerDay, maxRides, config, comparisons, strategies) {
+      const width = 960;
+      const height = 420;
+      const margin = { top: 24, right: 24, bottom: 54, left: 72 };
+      const innerWidth = width - margin.left - margin.right;
+      const innerHeight = height - margin.top - margin.bottom;
+      const rideStep = maxRides <= 80 ? 1 : 2;
+
+      const data = [];
+      for (let rides = 1; rides <= maxRides; rides += rideStep) {
+        const pattern = patternFromMonthlyRides(rides, preferredTripsPerDay, config);
+        const strategyMap = Object.fromEntries(
+          buildStrategies(rideMinutes, rideVariance, pattern.tripsPerDay, pattern.daysPerWeek, config, comparisons)
+            .map((strategy) => [strategy.id, strategy.cost])
+        );
+        data.push({ rides, ...strategyMap });
+      }
+      if (data[data.length - 1]?.rides !== maxRides) {
+        const pattern = patternFromMonthlyRides(maxRides, preferredTripsPerDay, config);
+        const strategyMap = Object.fromEntries(
+          buildStrategies(rideMinutes, rideVariance, pattern.tripsPerDay, pattern.daysPerWeek, config, comparisons)
+            .map((strategy) => [strategy.id, strategy.cost])
+        );
+        data.push({ rides: maxRides, ...strategyMap });
+      }
+
+      const allValues = data.flatMap((row) => strategies.map((strategy) => row[strategy.id]).filter(Number.isFinite));
+      const minValue = Math.min(...allValues);
+      const maxValue = Math.max(...allValues);
+      const yMin = 0;
+      const yMax = Math.max(1, Math.ceil(maxValue * 1.05));
+      const xScale = (x) => margin.left + ((x - 1) / Math.max(1, maxRides - 1)) * innerWidth;
+      const yScale = (y) => margin.top + innerHeight - ((y - yMin) / Math.max(1, yMax - yMin)) * innerHeight;
+      const yTicks = 5;
+      const yTickValues = Array.from({ length: yTicks + 1 }, (_, i) => yMin + ((yMax - yMin) / yTicks) * i);
+      const xTickStep = maxRides <= 60 ? 10 : maxRides <= 120 ? 20 : 40;
+      const xTickValues = [];
+      for (let x = 0; x <= maxRides; x += xTickStep) {
+        if (x >= 1) xTickValues.push(x);
+      }
+      if (!xTickValues.includes(maxRides)) xTickValues.push(maxRides);
+      const gridLines = yTickValues.map((y) => {
+        const yPos = yScale(y);
+        return `
+          <line x1="${margin.left}" y1="${yPos}" x2="${width - margin.right}" y2="${yPos}" stroke="#e8edf6" stroke-width="1" />
+          <text x="${margin.left - 10}" y="${yPos + 4}" text-anchor="end" font-size="12" fill="#62708a">${formatCurrency(y)}</text>
+        `;
+      }).join('');
+      const xTicks = xTickValues.map((x) => {
+        const xPos = xScale(x);
+        return `
+          <line x1="${xPos}" y1="${margin.top + innerHeight}" x2="${xPos}" y2="${margin.top + innerHeight + 6}" stroke="#94a3b8" stroke-width="1" />
+          <text x="${xPos}" y="${height - 16}" text-anchor="middle" font-size="12" fill="#62708a">${x}</text>
+        `;
+      }).join('');
+      const polylines = strategies.map((strategy) => {
+        const usableRows = data.filter((row) => Number.isFinite(row[strategy.id]));
+        const points = usableRows.map((row) => `${xScale(row.rides)},${yScale(row[strategy.id])}`).join(' ');
+        const last = usableRows[usableRows.length - 1];
+        const color = COLORS[strategy.id] || '#475569';
+        return `
+          <polyline fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${points}" />
+          <text x="${xScale(last.rides) - 4}" y="${yScale(last[strategy.id]) - 8}" text-anchor="end" font-size="12" fill="${color}">${strategy.name}</text>
+        `;
+      }).join('');
+      chart.innerHTML = `
+        <rect x="0" y="0" width="${width}" height="${height}" fill="#ffffff" rx="18" />
+        ${gridLines}
+        <line x1="${margin.left}" y1="${margin.top + innerHeight}" x2="${width - margin.right}" y2="${margin.top + innerHeight}" stroke="#94a3b8" stroke-width="1.2" />
+        <line x1="${margin.left}" y1="${margin.top}" x2="${margin.left}" y2="${margin.top + innerHeight}" stroke="#94a3b8" stroke-width="1.2" />
+        ${xTicks}
+        ${polylines}
+        <text x="${width / 2}" y="${height - 2}" text-anchor="middle" font-size="13" fill="#475569">Trips per month at ${compactNumber.format(rideMinutes)} min/trip</text>
+        <text x="18" y="${height / 2}" text-anchor="middle" font-size="13" fill="#475569" transform="rotate(-90 18 ${height / 2})">Estimated monthly cost</text>
+      `;
+    }
+
     function render() {
       const rideMinutes = clamp(toNum(inputs.rideMinutesValue, 15), 1, 60);
       const rideVariance = clamp(toNum(inputs.rideVariance, 1), 0, 15);
       const tripsPerDay = clamp(Math.round(toNum(inputs.tripsPerDay, 2)), 1, 12);
       const daysPerWeek = clamp(Math.round(toNum(inputs.daysPerWeek, 5)), 1, 7);
       const graphMax = clamp(toNum(inputs.graphMax, 35), 20, 60);
+      const graphMode = inputs.graphMode.value === 'frequency' ? 'frequency' : 'journey';
+      const frequencyMaxRides = clamp(Math.round(toNum(inputs.frequencyMaxRides, 120)), 10, 240);
       const config = getConfig();
       const comparisons = getComparisonSettings();
 
       inputs.rideMinutes.value = rideMinutes;
-      if (document.activeElement !== inputs.rideMinutesValue) inputs.rideMinutesValue.value = rideMinutes;
-      if (document.activeElement !== inputs.rideVariance) inputs.rideVariance.value = rideVariance;
-      inputs.tripsPerDay.value = tripsPerDay;
-      inputs.daysPerWeek.value = daysPerWeek;
+      if (!isActivelyEditing(inputs.rideMinutesValue)) inputs.rideMinutesValue.value = rideMinutes;
+      if (!isActivelyEditing(inputs.rideVariance)) inputs.rideVariance.value = rideVariance;
+      if (!isActivelyEditing(inputs.tripsPerDay)) inputs.tripsPerDay.value = tripsPerDay;
+      if (!isActivelyEditing(inputs.daysPerWeek)) inputs.daysPerWeek.value = daysPerWeek;
       inputs.graphMax.value = graphMax;
+      if (!isActivelyEditing(inputs.frequencyMaxRides)) inputs.frequencyMaxRides.value = frequencyMaxRides;
 
       graphMaxValue.textContent = `${graphMax} min`;
       updateRegionVisibility();
@@ -2119,8 +2349,17 @@
       buildSummary(rideMinutes, tripsPerDay, daysPerWeek, sortedStrategies, config.weeksPerMonth);
       buildTable(sortedStrategies);
       buildLegend(strategies);
-      buildChart(tripsPerDay, daysPerWeek, graphMax, rideVariance, config, comparisons, strategies);
-      buildDominantList(tripsPerDay, daysPerWeek, graphMax, rideVariance, config, comparisons);
+      if (graphMode === 'frequency') {
+        chartTitle.textContent = `Monthly cost as trip frequency changes in ${currentRegionDef().name}`;
+        chartNote.textContent = `Estimated monthly cost is plotted as monthly usage changes, while each trip remains ${compactNumber.format(rideMinutes)} minutes long. The usage pattern keeps your current trips-per-riding-day shape where possible.`;
+        buildFrequencyChart(rideMinutes, rideVariance, tripsPerDay, frequencyMaxRides, config, comparisons, strategies);
+        buildFrequencyDominantList(rideMinutes, rideVariance, tripsPerDay, frequencyMaxRides, config, comparisons);
+      } else {
+        chartTitle.textContent = `Where each pass overtakes the others in ${currentRegionDef().name}`;
+        chartNote.textContent = 'Monthly cost is plotted as average ride length changes, using your current trips/day and riding days/week.';
+        buildChart(tripsPerDay, daysPerWeek, graphMax, rideVariance, config, comparisons, strategies);
+        buildDominantList(tripsPerDay, daysPerWeek, graphMax, rideVariance, config, comparisons);
+      }
       updateShareCodePreview();
     }
 
@@ -2136,6 +2375,18 @@
       input.addEventListener('input', render);
       input.addEventListener('change', render);
     });
+
+    function normaliseNumberInput(input, fallback, min, max, round = true) {
+      if (!input) return;
+      const parsed = toNum(input, fallback);
+      const value = clamp(round ? Math.round(parsed) : parsed, min, max);
+      input.value = value;
+      render();
+    }
+
+    inputs.tripsPerDay.addEventListener('blur', () => normaliseNumberInput(inputs.tripsPerDay, 2, 1, 12));
+    inputs.daysPerWeek.addEventListener('blur', () => normaliseNumberInput(inputs.daysPerWeek, 5, 1, 7));
+    inputs.frequencyMaxRides.addEventListener('blur', () => normaliseNumberInput(inputs.frequencyMaxRides, 120, 10, 240));
 
     inputs.region.addEventListener('change', () => {
       applyRegionDefaults(inputs.region.value);
