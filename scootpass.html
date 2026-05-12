@@ -243,8 +243,18 @@
     }
 
     .best {
-      border: 1px solid rgba(15,118,110,0.18);
-      background: linear-gradient(180deg, rgba(15,118,110,0.08) 0%, rgba(255,255,255,1) 100%);
+      --best-color: #0f766e;
+      --best-color-rgb: 15, 118, 110;
+      border: 1px solid rgba(var(--best-color-rgb), 0.28);
+      background: linear-gradient(180deg, rgba(var(--best-color-rgb), 0.13) 0%, rgba(var(--best-color-rgb), 0.035) 58%, rgba(255,255,255,1) 100%);
+      box-shadow: 0 10px 24px rgba(var(--best-color-rgb), 0.10);
+      transition: border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .best .eyebrow,
+    .best .value,
+    .best .sub {
+      color: var(--text);
     }
 
     .table-wrap {
@@ -1001,6 +1011,8 @@
           subscriptionMonthlyPrice: 9.99,
           subscriptionRidePrice: 1.50,
           subscriptionRideMinutes: 20,
+          westSummerMonthlyPrice: 2.99,
+          westSummerRidePrice: 2.50,
           subscriptionOverageRate: 0.25
         },
         strategies: [
@@ -1009,7 +1021,8 @@
           { id: 'pass30', name: '30 Minutes Pass', type: 'minuteBundle', priceField: 'pass30Price', minutesField: 'pass30Minutes', durationDays: 1 },
           { id: 'pass100', name: '100 Minutes Pass', type: 'minuteBundle', priceField: 'pass100Price', minutesField: 'pass100Minutes', durationDays: 7 },
           { id: 'unlocks', name: 'Unlimited Free Unlocks', type: 'unlockPass', priceField: 'unlocksMonthlyPrice' },
-          { id: 'subscription', name: 'Dott Pro', type: 'subscription', monthlyField: 'subscriptionMonthlyPrice', ridePriceField: 'subscriptionRidePrice', rideMinutesField: 'subscriptionRideMinutes', overageField: 'subscriptionOverageRate' }
+          { id: 'subscription', name: 'Dott Pro', type: 'subscription', monthlyField: 'subscriptionMonthlyPrice', ridePriceField: 'subscriptionRidePrice', rideMinutesField: 'subscriptionRideMinutes', overageField: 'subscriptionOverageRate' },
+          { id: 'westSummer', name: 'WEST Summer', type: 'subscription', monthlyField: 'westSummerMonthlyPrice', ridePriceField: 'westSummerRidePrice', rideMinutesField: 'subscriptionRideMinutes', overageField: 'subscriptionOverageRate' }
         ],
         notes: [
           '<p><strong>No pass</strong> is modelled as the unlock fee plus the standard minute rate on every ride.</p>',
@@ -1140,6 +1153,7 @@
       rides2: '#ea580c',
       unlocks: '#0891b2',
       subscription: '#0f766e',
+      westSummer: '#dc2626',
       bus: '#b45309',
       tube: '#be123c',
       bike: '#16a34a'
@@ -1176,6 +1190,7 @@
     const graphMaxField = document.getElementById('graphMaxField');
     const frequencyMaxField = document.getElementById('frequencyMaxField');
     const bikeComparisonFields = document.getElementById('bikeComparisonFields');
+    const bestMetric = document.querySelector('.metric.best');
     const bestName = document.getElementById('bestName');
     const bestSummary = document.getElementById('bestSummary');
     const bestMonthly = document.getElementById('bestMonthly');
@@ -1310,6 +1325,8 @@
         subscriptionMonthlyPrice: value('subscriptionMonthlyPrice', regionConfig.subscriptionMonthlyPrice),
         subscriptionRidePrice: value('subscriptionRidePrice', regionConfig.subscriptionRidePrice),
         subscriptionRideMinutes: value('subscriptionRideMinutes', regionConfig.subscriptionRideMinutes, 1),
+        westSummerMonthlyPrice: regionConfig.westSummerMonthlyPrice,
+        westSummerRidePrice: regionConfig.westSummerRidePrice,
         subscriptionOverageRate: value('subscriptionOverageRate', regionConfig.subscriptionOverageRate)
       };
     }
@@ -2068,6 +2085,28 @@
       });
     }
 
+    function hexToRgb(hex) {
+      const cleaned = String(hex || '').replace('#', '').trim();
+      const normalised = cleaned.length === 3
+        ? cleaned.split('').map((char) => char + char).join('')
+        : cleaned;
+      const value = Number.parseInt(normalised, 16);
+      if (!Number.isFinite(value)) return { r: 71, g: 85, b: 105 };
+      return {
+        r: (value >> 16) & 255,
+        g: (value >> 8) & 255,
+        b: value & 255
+      };
+    }
+
+    function setBestMetricColor(strategyId) {
+      if (!bestMetric) return;
+      const color = COLORS[strategyId] || '#475569';
+      const rgb = hexToRgb(color);
+      bestMetric.style.setProperty('--best-color', color);
+      bestMetric.style.setProperty('--best-color-rgb', `${rgb.r}, ${rgb.g}, ${rgb.b}`);
+    }
+
     function buildSummary(rideMinutes, tripsPerDay, daysPerWeek, sortedStrategies, weeksPerMonth) {
       const best = sortedStrategies[0];
       const second = sortedStrategies[1];
@@ -2078,6 +2117,7 @@
       const perRide = safeRidesPerMonth > 0 ? best.cost / safeRidesPerMonth : 0;
       const perMinute = safeMinutesPerMonth > 0 ? best.cost / safeMinutesPerMonth : 0;
 
+      setBestMetricColor(best.id);
       bestName.textContent = best.name;
       bestSummary.textContent = second
         ? `Saves about ${formatCurrency(savingsVsSecond)} per month against ${second.name}.`
